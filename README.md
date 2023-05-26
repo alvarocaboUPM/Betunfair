@@ -1,6 +1,24 @@
 # Betunfair
 
-**TODO: Add description**
+Betunfair is a marketplace where users can place bets against each other,rather than against a bookmaker
+
+## Production Setup
+
+### Database connection
+
+1. Copy the example file
+  
+   ```bash
+    cp config/dev.exs config/config.exs
+    ```
+
+2. Change the parameters to match production configuration
+3. You can test the connection by running:
+
+   ```bash
+    iex> MyApp.Repo.start_link()
+    {:ok, #PID<0.198.0>}
+    ```
 
 ## Installation
 
