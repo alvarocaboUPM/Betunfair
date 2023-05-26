@@ -1,18 +1,16 @@
-defmodule Betunfair do
-  @moduledoc """
-  Documentation for `Betunfair`.
-  """
+defmodule BetUnfair do
+  use GenServer
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Betunfair.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def start_link(_name) do
+    # code here
   end
+
+  def stop() do
+    # code here
+  end
+
+  def clean(_name) do
+    # code here
+  end
+
 end
