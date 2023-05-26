@@ -1,8 +1,8 @@
 use Mix.Config
 
-config :betunfair, ecto_repos: [Betunfair.Repo]
+config :betunfair, ecto_repos: [BetUnfair.Repo]
 
-config :betunfair, Betunfair.Repo,
+config :betunfair, BetUnfair.Repo,
   adapter: Ecto.Adapters.MyXQL,
   database: "betunfair",
   username: "betunfair",
