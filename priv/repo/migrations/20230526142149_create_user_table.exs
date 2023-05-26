@@ -1,4 +1,4 @@
-defmodule MyApp.Repo.Migrations.CreateUsersTable do
+defmodule BetUnfair.Repo.Migrations.CreateUsersTable do
   use Ecto.Migration
 
   def change do
