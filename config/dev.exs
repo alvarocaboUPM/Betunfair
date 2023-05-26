@@ -7,4 +7,4 @@ config :betunfair, BetUnfair.Repo,
   username: "betunfair",
   password: "9sX5^6a2jJng",
   hostname: "localhost",
-  port: 3306,
+  port: 3306
