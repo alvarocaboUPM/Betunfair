@@ -4,7 +4,7 @@ defmodule BetUnfair.Application do
   def start(_type, _args) do
     children = [
       BetUnfair.Repo,
-      {Betunfair, []} # Assuming BetUnfair.start_link/1 is properly defined
+      {BetUnfair, "Test"}
     ]
 
     opts = [strategy: :one_for_one, name: BetUnfair.Supervisor]
