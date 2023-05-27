@@ -2,10 +2,15 @@ defmodule BetunfairTest do
   use ExUnit.Case
 
   test "user_create_deposit_get" do
+    assert {:ok, u1} = BetUnfair.user_create("u1", "Francisco Gonzalez")
+    assert is_error(BetUnfair.user_create("u1", "Francisco Gonzalez"))
+  end
+
+
+  test "user_create_deposit_get_2" do
     assert {:ok,_} = BetUnfair.clean("testdb")
     assert  {:ok,_} = BetUnfair.start_link("testdb")
     assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
-    assert is_error(BetUnfair.user_create("u1","Francisco Gonzalez"))
     assert is_ok(BetUnfair.user_deposit(u1,2000))
     assert is_error(BetUnfair.user_deposit(u1,-1))
     assert is_error(BetUnfair.user_deposit(u1,0))
