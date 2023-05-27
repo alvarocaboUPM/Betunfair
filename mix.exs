@@ -1,4 +1,4 @@
-defmodule Betunfair.MixProject do
+defmodule BetUnfair.MixProject do
   use Mix.Project
 
   def project do
@@ -14,7 +14,7 @@ defmodule Betunfair.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Betunfair.Application, []},
+      mod: {BetUnfair.Application, []},
       extra_applications: [:logger, :runtime_tools, :ecto_sql],
     ]
   end

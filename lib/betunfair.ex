@@ -3,8 +3,8 @@ defmodule BetUnfair do
 
   ## Client API
 
-  def start() do
-    GenServer.start(__MODULE__, nil)
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, name, name: Betunfair)
   end
 
   def stop(name) do
