@@ -6,7 +6,6 @@ defmodule BetUnfair.Application do
       BetUnfair.Repo,
       {BetUnfair, "Test"}
     ]
-
     opts = [strategy: :one_for_one, name: BetUnfair.Supervisor]
     Supervisor.start_link(children, opts)
   end
