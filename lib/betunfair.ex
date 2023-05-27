@@ -22,6 +22,18 @@ defmodule BetUnfair do
     GenServer.call(__MODULE__, {:user_create, username, full_name})
   end
 
+  def user_deposit(user, amount) do
+    GenServer.call(__MODULE__, {:user_deposit, user, amount})
+  end
+
+  def user_withdraw(user, amount) do
+    GenServer.call(__MODULE__, {:user_withdraw, user, amount})
+  end
+
+  def user_get(user) do
+    GenServer.call(__MODULE__, {:user_get, user})
+  end
+
   ## Server Callbacks
 
   @impl true
@@ -33,6 +45,30 @@ defmodule BetUnfair do
   def handle_call({:user_create, username, full_name}, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.User.user_create(username, full_name)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:user_withdraw, user, amount}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.User.user_withdraw(user, amount)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:user_deposit, user, amount}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.User.user_deposit(user, amount)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:user_get, user}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.User.user_get(user)
 
     {:reply, result, state}
   end
