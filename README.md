@@ -7,14 +7,24 @@ Betunfair is a marketplace where users can place bets against each other,rather 
 ### Database connection
 
 1. Create the databases by running `utils/init.sql`
-2. Run the migrations
+2. Run the migrations for the testing db
+  
+   ```bash
+    export MIX_ENV=test && \
+    mix ecto.create && \
+    mix ecto.migrate && \
+    export MIX_ENV=dev
+    ```
+
+3. Run the migrations for prod db
   
    ```bash
     mix ecto.create && \
-    mix ecto.migrate
+    mix ecto.migrate && \
+    
     ```
 
-3. You can test the connection by running:
+4. You can test the connection by running:
 
    ```bash
     iex> MyApp.Repo.start_link()
