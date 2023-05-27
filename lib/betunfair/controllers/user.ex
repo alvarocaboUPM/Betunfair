@@ -1,17 +1,30 @@
-defmodule BetUnfair.User do
+defmodule BetUnfair.Controllers.User do
 
-  @doc """
-  Creates a new user with the given username and full name.
+@doc """
+Creates a new user with the given username and full name.
 
-  ## Examples
+## Examples
 
-      assert {:ok, user} = BetUnfair.user_create("u1", "Francisco Gonzalez")
+    assert {:ok, user} = BetUnfair.user_create("u1", "Francisco Gonzalez")
 
-  """
-  @spec user_create(String.t(), String.t()) :: {:ok, map()}
-  def user_create(id, name) do
-    # code here
+"""
+@spec user_create(String.t(), String.t()) :: {:ok, map()}
+def user_create(username, full_name) do
+  changeset = %BetUnfair.Schemas.User{}
+    |> Ecto.Changeset.cast(%{
+      username: username,
+      full_name: full_name,
+      password: nil,
+      wallet_balance: 0.0,
+    }, [:username,:full_name, :password, :wallet_balance])
+    |> BetUnfair.Repo.insert()
+
+  case changeset do
+    {:ok, user} -> {:ok, user}
+    {:error, changeset} -> {:error, changeset}
   end
+end
+
 
   @doc """
   Deposits the given amount into the user's account.
