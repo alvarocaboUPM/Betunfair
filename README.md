@@ -6,13 +6,14 @@ Betunfair is a marketplace where users can place bets against each other,rather 
 
 ### Database connection
 
-1. Copy the example file
+1. Create the databases by running `utils/init.sql`
+2. Run the migrations
   
    ```bash
-    cp config/dev.exs config/config.exs
+    mix ecto.create && \
+    mix ecto.migrate
     ```
 
-2. Change the parameters to match production configuration
 3. You can test the connection by running:
 
    ```bash
