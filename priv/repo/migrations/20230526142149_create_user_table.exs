@@ -3,8 +3,8 @@ defmodule BetUnfair.Repo.Migrations.CreateUsersTable do
 
   def change do
     create table(:users) do
-      add :user_id, :integer
       add :username, :string
+      add :full_name, :string
       add :password, :string
       add :wallet_balance, :float
     end
