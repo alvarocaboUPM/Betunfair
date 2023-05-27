@@ -2,7 +2,7 @@ defmodule BetUnfair.Repo.Migrations.CreateUsersTable do
   use Ecto.Migration
 
   def change do
-    create table(:users) do
+    create table(:user) do
       add :username, :string
       add :full_name, :string
       add :password, :string

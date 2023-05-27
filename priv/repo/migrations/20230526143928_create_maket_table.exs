@@ -2,11 +2,11 @@ defmodule BetUnfair.Repo.Migrations.CreateEventsTable do
   use Ecto.Migration
 
   def change do
-    create table(:events) do
-      add :event_id, :integer
-      add :event_name, :string
-      add :event_description, :string
-      add :event_date, :utc_datetime
+    create table(:market) do
+      add :market_id, :integer
+      add :market_name, :string
+      add :market_description, :string
+      add :market_date, :utc_datetime
       add :is_settled, :boolean
       add :outcome, :string
     end

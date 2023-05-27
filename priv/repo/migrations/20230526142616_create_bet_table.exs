@@ -2,7 +2,7 @@ defmodule BetUnfair.Repo.Migrations.CreateBetsTable do
   use Ecto.Migration
 
   def change do
-    create table(:bets) do
+    create table(:bet) do
       add :bet_id, :integer
       add :amount, :float
       add :odds, :float
