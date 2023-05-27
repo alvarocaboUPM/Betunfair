@@ -2,7 +2,7 @@
 
 Betunfair is a marketplace where users can place bets against each other,rather than against a bookmaker
 
-## Production Setup
+## Dev Setup
 
 ### Database connection
 
@@ -21,19 +21,8 @@ Betunfair is a marketplace where users can place bets against each other,rather 
     {:ok, #PID<0.198.0>}
     ```
 
-## Installation
+## Useful documentation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `betunfair` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:betunfair, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/betunfair](https://hexdocs.pm/betunfair).
+- [Ecto start-up](https://hexdocs.pm/ecto/getting-started.html#adding-ecto-to-an-application)
+- [Ecto-SQL](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.html)
+  
