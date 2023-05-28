@@ -55,13 +55,12 @@ jobs:
       
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Elixir
-      run: |
-        apt-get update
-        apt-get install -y curl
-        curl -sSL https://github.com/erlef/setup-beam/raw/988e02bfe678367a02564f65ca2e37726dc0268f/dist/install-otp.sh | bash -s -- ubuntu-20.04 OTP-24.1.7
-      env:
-        OTP_VERSION: '24.1.7'
+    - name: Setup Erlang/OTP with optional Elixir (and mix) and/or rebar3
+      uses: erlef/setup-beam@v1.15.4
+
+      with:
+        elixir-version: '1.12.3'
+        otp-version: '24.1'
     - name: Restore dependencies cache
       uses: actions/cache@v3
       with:
