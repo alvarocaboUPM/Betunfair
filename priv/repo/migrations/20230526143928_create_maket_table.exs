@@ -7,7 +7,6 @@ defmodule MyApp.Repo.Migrations.CreateMarketTable do
       add :market_description, :string
       add :market_date, :utc_datetime
       add :status, :string
-      add :settled_result, :boolean
 
       timestamps()
     end
