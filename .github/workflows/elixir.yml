@@ -54,6 +54,9 @@ jobs:
         MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
       
     steps:
+    - name: Install wget
+      run: apt install -y wget
+    
     - uses: actions/checkout@v3
     - name: Setup Erlang/OTP with optional Elixir (and mix) and/or rebar3
       uses: erlef/setup-beam@v1.15.4
