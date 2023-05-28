@@ -9,18 +9,13 @@ defmodule BetunfairTest do
   end
 
   test "user_create_deposit_get" do
-    assert {:ok, u1} = BetUnfair.user_create("u1", "Francisco Gonzalez")
-    #assert is_error(BetUnfair.user_create("u1", "Francisco Gonzalez"))
+    assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
+    assert is_ok(BetUnfair.user_deposit(u1,2000))
+    assert is_error(BetUnfair.user_deposit(u1,-1))
+    assert is_error(BetUnfair.user_deposit(u1,0))
+    assert is_error(BetUnfair.user_deposit("u11",0))
+    assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u1)
   end
-
-  # test "user_create_deposit_get_2" do
-  #   assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
-  #   assert is_ok(BetUnfair.user_deposit(u1,2000))
-  #   assert is_error(BetUnfair.user_deposit(u1,-1))
-  #   assert is_error(BetUnfair.user_deposit(u1,0))
-  #   assert is_error(BetUnfair.user_deposit("u11",0))
-  #   assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u1)
-  # end
 
   # test "user_bet1" do
   #   assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")

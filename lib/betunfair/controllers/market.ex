@@ -15,8 +15,7 @@ defmodule BetUnfair.Controllers.Market do
         %{
           market_name: name,
           market_description: description,
-          market_date: Timex.now("tuc_datetime"),
-          
+          status: :active
         }
       )
 
