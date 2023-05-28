@@ -13,21 +13,26 @@ defmodule BetUnfair do
 
   def clean(name) do
     if Mix.env() == :test do
-      # Ensure the BetUnfair.Repo is started
-      {:error, {:already_started, _}} = BetUnfair.Repo.start_link()
-
-      # Delete all records from the tables in the database
-      BetUnfair.Repo.transaction(fn ->
-        Ecto.Adapters.SQL.query!(BetUnfair.Repo, "DELETE FROM user")
-        Ecto.Adapters.SQL.query!(BetUnfair.Repo, "DELETE FROM market")
-        Ecto.Adapters.SQL.query!(BetUnfair.Repo, "DELETE FROM bet")
-        Ecto.Adapters.SQL.query!(BetUnfair.Repo, "ALTER TABLE user AUTO_INCREMENT = 1")
-        Ecto.Adapters.SQL.query!(BetUnfair.Repo, "ALTER TABLE market AUTO_INCREMENT = 1")
-        Ecto.Adapters.SQL.query!(BetUnfair.Repo, "ALTER TABLE bet AUTO_INCREMENT = 1")
-      end)
+      clearDB()
     end
 
     stop(name)
+  end
+
+  def clearDB() do
+    # Ensure the BetUnfair.Repo is started
+    {:error, {:already_started, _}} = BetUnfair.Repo.start_link()
+
+    # Delete all records from the tables in the database
+    BetUnfair.Repo.transaction(fn ->
+      Ecto.Adapters.SQL.query!(BetUnfair.Repo, "DELETE FROM user")
+      Ecto.Adapters.SQL.query!(BetUnfair.Repo, "DELETE FROM market")
+      Ecto.Adapters.SQL.query!(BetUnfair.Repo, "DELETE FROM bet")
+      Ecto.Adapters.SQL.query!(BetUnfair.Repo, "ALTER TABLE user AUTO_INCREMENT = 1")
+      Ecto.Adapters.SQL.query!(BetUnfair.Repo, "ALTER TABLE market AUTO_INCREMENT = 1")
+      Ecto.Adapters.SQL.query!(BetUnfair.Repo, "ALTER TABLE bet AUTO_INCREMENT = 1")
+    end)
+    :ok
   end
 
   ## User API
