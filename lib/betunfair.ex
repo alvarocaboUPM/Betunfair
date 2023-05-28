@@ -84,11 +84,11 @@ defmodule BetUnfair do
   end
 
   def market_settle(id, result) do
-    GenServer.call(__MODULE__, {:market_freeze, id, result})
+    GenServer.call(__MODULE__, {:market_settle, id, result})
   end
 
   def market_bets(id) do
-    GenServer.call(__MODULE__, {:market_freeze, id})
+    GenServer.call(__MODULE__, {:market_bets, id})
   end
   ## Server Callbacks
 
@@ -175,6 +175,14 @@ defmodule BetUnfair do
   def handle_call({:market_cancel, id}, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.Market.market_cancel(id)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_freeze, id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_freeze(id)
 
     {:reply, result, state}
   end

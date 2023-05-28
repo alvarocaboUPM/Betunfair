@@ -1,5 +1,6 @@
 defmodule BetUnfair.Controllers.Market do
   import Ecto.Query
+
   @doc """
   Creates a new market with the given name and description.
 
@@ -27,41 +28,42 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   @doc """
-Retrieves a list of all markets.
+  Retrieves a list of all markets.
 
-## Examples
+  ## Examples
 
-    markets = BetUnfair.market_list()
+      markets = BetUnfair.market_list()
 
-"""
-@spec market_list() :: list()
-def market_list() do
-  markets =
-  BetUnfair.Schemas.Market |>
-  BetUnfair.Repo.all()
+  """
+  @spec market_list() :: list()
+  def market_list() do
+    markets =
+      BetUnfair.Schemas.Market
+      |> BetUnfair.Repo.all()
 
-  {:ok, markets}
-end
+    {:ok, markets}
+  end
 
-@doc """
-Retrieves a list of active markets.
+  @doc """
+  Retrieves a list of active markets.
 
-## Examples
+  ## Examples
 
-    active_markets = BetUnfair.market_list_active()
-    IO.inspect(active_markets)
+      active_markets = BetUnfair.market_list_active()
+      IO.inspect(active_markets)
 
-"""
-@spec market_list_active() :: list()
-def market_list_active() do
+  """
+  @spec market_list_active() :: list()
+  def market_list_active() do
+    query =
+      from(m in BetUnfair.Schemas.Market,
+        where: [status: :active],
+        select: [:market_name, :market_description, :status]
+      )
 
-  query =
-    from m in BetUnfair.Schemas.Market,
-     where: [status: :active],
-     select: [:market_name, :market_description, :status]
-  markets = BetUnfair.Repo.all(query)
-  {:ok, markets}
-end
+    markets = BetUnfair.Repo.all(query)
+    {:ok, markets}
+  end
 
   @doc """
   Cancels the specified market.
@@ -72,8 +74,13 @@ end
 
   """
   @spec market_cancel(map()) :: :ok | {:error, String.t()}
-  def market_cancel(id) do
-    # Cancels the specified market.
+  def market_cancel(market) when is_map(market) do
+    change = BetUnfair.Schemas.Market.changeset(market, %{status: :cancelled})
+
+    case BetUnfair.Repo.update(change) do
+      {:ok, _} -> :ok
+      {:error, changeset} -> {:error, "Failed to update market: #{inspect(changeset.errors)}"}
+    end
   end
 
   @doc """
@@ -85,8 +92,13 @@ end
 
   """
   @spec market_freeze(map()) :: :ok | {:error, String.t()}
-  def market_freeze(id) do
-    # Freezes the specified market.
+  def market_freeze(market) when is_map(market) do
+    change = BetUnfair.Schemas.Market.changeset(market, %{status: :frozen})
+
+    case BetUnfair.Repo.update(change) do
+      {:ok, _} -> :ok
+      {:error, changeset} -> {:error, "Failed to update market: #{inspect(changeset.errors)}"}
+    end
   end
 
   @doc """
