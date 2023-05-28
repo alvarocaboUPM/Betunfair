@@ -42,6 +42,16 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
   
+    container:
+      image: mysql:8.0
+      ports:
+        - 3306:3306
+      env:
+        MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        MYSQL_DATABASE: betunfair_test
+        MYSQL_USER: betunfair
+        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      
     steps:
     - uses: actions/checkout@v3
     - name: Set up Elixir
@@ -55,17 +65,7 @@ jobs:
         path: deps
         key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
         restore-keys: ${{ runner.os }}-mix-
-    - name: Set up MySQL
-      uses: docker/setup-mysql@v1
-      with:
-        mysql-version: '8.0'
-        expose: '3306'
-      env:
-        MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-        MYSQL_DATABASE: betunfair_test
-        MYSQL_USER: betunfair
-        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-        
+
     - name: Initialize Database
       run: mysql -u betunfair -p"${{ secrets.MYSQL_PASSWORD }}" -h 127.0.0.1 < utils/init.sql
   
