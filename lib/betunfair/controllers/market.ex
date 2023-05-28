@@ -10,8 +10,8 @@ defmodule BetUnfair.Controllers.Market do
   @spec market_create(atom(), String.t()) :: {:ok, map()}
   def market_create(name, description) do
     changeset =
-      BetUnfair.Schemas.User.changeset(
-        %BetUnfair.Schemas.User{},
+      BetUnfair.Schemas.Market.changeset(
+        %BetUnfair.Schemas.Market{},
         %{
           market_name: name,
           market_description: description,
@@ -31,7 +31,6 @@ defmodule BetUnfair.Controllers.Market do
   ## Examples
 
       markets = BetUnfair.market_list()
-      IO.inspect(markets)
 
   """
   @spec market_list() :: list()

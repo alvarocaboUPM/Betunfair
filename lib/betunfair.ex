@@ -61,6 +61,35 @@ defmodule BetUnfair do
     GenServer.call(__MODULE__, {:user_get_balance, user})
   end
 
+  ## Market API
+
+  def market_create(name, description) do
+    GenServer.call(__MODULE__, {:market_create, name, description})
+  end
+
+  def market_list() do
+    GenServer.call(__MODULE__, :market_list)
+  end
+
+  def market_list_active() do
+    GenServer.call(__MODULE__, :market_list_active)
+  end
+
+  def market_cancel(id) do
+    GenServer.call(__MODULE__, {:market_cancel, id})
+  end
+
+  def market_freeze(id) do
+    GenServer.call(__MODULE__, {:market_freeze, id})
+  end
+
+  def market_settle(id, result) do
+    GenServer.call(__MODULE__, {:market_freeze, id, result})
+  end
+
+  def market_bets(id) do
+    GenServer.call(__MODULE__, {:market_freeze, id})
+  end
   ## Server Callbacks
 
   @impl true
@@ -112,6 +141,72 @@ defmodule BetUnfair do
   def handle_call({:user_get_balance, user}, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.User.user_get_balance(user)
+
+    {:reply, result, state}
+  end
+
+  # Market
+
+  @impl true
+  def handle_call({:market_create, name, description}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_create(name, description)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_list}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_list()
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_list_active}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_list_active()
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_cancel, id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_cancel(id)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_bets, id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_bets(id)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_pending_backs, id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_pending_backs(id)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_match, id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_match(id)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_settle, id, result}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_settle(id, result)
 
     {:reply, result, state}
   end
