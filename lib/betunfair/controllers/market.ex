@@ -1,47 +1,151 @@
 defmodule BetUnfair.Controllers.Market do
+  @doc """
+  Creates a new market with the given name and description.
 
+  ## Examples
+
+      {:ok, m1} = BetUnfair.market_create(:rmw, "Real Madrid wins")
+
+  """
+  @spec market_create(atom(), String.t()) :: {:ok, map()}
   def market_create(name, description) do
-    # code here
+    changeset =
+      BetUnfair.Schemas.User.changeset(
+        %BetUnfair.Schemas.User{},
+        %{
+          market_name: name,
+          market_description: description,
+          market_date: Timex.now("tuc_datetime"),
+          
+        }
+      )
+
+    case BetUnfair.Repo.insert(changeset) do
+      {:ok, user} -> {:ok, user}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
+  @doc """
+  Retrieves a list of all markets.
+
+  ## Examples
+
+      markets = BetUnfair.market_list()
+      IO.inspect(markets)
+
+  """
+  @spec market_list() :: list()
   def market_list() do
-    # code here
+    # Retrieves a list of all markets.
   end
 
+  @doc """
+  Retrieves a list of active markets.
+
+  ## Examples
+
+      active_markets = BetUnfair.market_list_active()
+      IO.inspect(active_markets)
+
+  """
+  @spec market_list_active() :: list()
   def market_list_active() do
-    # code here
+    # Retrieves a list of active markets.
   end
 
+  @doc """
+  Cancels the specified market.
+
+  ## Examples
+
+      :ok = BetUnfair.market_cancel(m1)
+
+  """
+  @spec market_cancel(map()) :: :ok | {:error, String.t()}
   def market_cancel(id) do
-    # code here
+    # Cancels the specified market.
   end
 
+  @doc """
+  Freezes the specified market.
+
+  ## Examples
+
+      :ok = BetUnfair.market_freeze(m1)
+
+  """
+  @spec market_freeze(map()) :: :ok | {:error, String.t()}
   def market_freeze(id) do
-    # code here
+    # Freezes the specified market.
   end
 
+  @doc """
+  Sets the result of the specified market.
+
+  ## Examples
+
+      :ok = BetUnfair.market_settle(m1, "Win")
+
+  """
+  @spec market_settle(map(), term()) :: :ok | {:error, String.t()}
   def market_settle(id, result) do
-    # code here
+    # Sets the result of the specified market.
   end
 
+  @doc """
+  Retrieves a list of bets placed on the specified market.
+
+  ## Examples
+
+      bets = BetUnfair.market_bets(m1)
+      IO.inspect(bets)
+
+  """
+  @spec market_bets(map()) :: list()
   def market_bets(id) do
-    # code here
+    # Retrieves a list of bets placed on the specified market.
   end
 
+  @doc """
+  Retrieves a list of pending back bets on the specified market.
+
+  ## Examples
+
+      pending_backs = BetUnfair.market_pending_backs(m1)
+      IO.inspect(pending_backs)
+
+  """
+  @spec market_pending_backs(map()) :: list()
   def market_pending_backs(id) do
-    # code here
+    # Retrieves a list of pending back bets on the specified market.
   end
 
+  @doc """
+  Retrieves a list of pending lay bets on the specified market.
+
+  ## Examples
+
+      pending_lays = BetUnfair.market_pending_lays(m1)
+      IO.inspect(pending_lays)
+
+  """
+  @spec market_pending_lays(map()) :: list()
   def market_pending_lays(id) do
-    # code here
+    # Retrieves a list of pending lay bets on the specified market.
   end
 
-  def market_get(id) do
-    # code here
-  end
+  @doc """
+  Matches the pending back and lay bets on the specified market.
 
+  ## Examples
+
+    :ok = BetUnfair.market_match(m1)
+
+
+  """
+  @spec market_match(map) :: :ok | {:error, String.t()}
   def market_match(id) do
     # code here
   end
-
 end
