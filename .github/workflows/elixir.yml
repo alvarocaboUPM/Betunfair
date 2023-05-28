@@ -2,7 +2,7 @@ name: Elixir CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main",  "11-fix-workflow-elixiryml"]
   pull_request:
     branches: [ "main" ]
 
@@ -40,14 +40,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04]  
-
+        os: [ubuntu-20.04]
+  
     steps:
     - uses: actions/checkout@v3
     - name: Set up Elixir
       uses: erlef/setup-beam@988e02bfe678367a02564f65ca2e37726dc0268f
       with:
-        elixir-version: '1.12.3' # Define the elixir version [required]
+        elixir-version: '1.12.3' # Define the Elixir version [required]
         otp-version: '24.1' # Define the OTP version [required]
     - name: Restore dependencies cache
       uses: actions/cache@v3
@@ -55,5 +55,20 @@ jobs:
         path: deps
         key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
         restore-keys: ${{ runner.os }}-mix-
+    - name: Set up MySQL
+      uses: docker/setup-mysql@v1
+      with:
+        mysql-version: '8.0'
+        expose: '3306'
+      env:
+        MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        MYSQL_DATABASE: betunfair_test
+        MYSQL_USER: betunfair
+        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        
+    - name: Initialize Database
+      run: mysql -u betunfair -p"${{ secrets.MYSQL_PASSWORD }}" -h 127.0.0.1 < utils/init.sql
+  
     - name: Run tests
       run: mix test
+    
