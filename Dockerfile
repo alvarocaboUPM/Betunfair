@@ -25,6 +25,3 @@ RUN service mariadb start && \
     mysql -u root < utils/init.sql && \
     mix ecto.create && \
     mix ecto.migrate
-
-# Expose the port
-EXPOSE 4000
