@@ -4,7 +4,15 @@ BetUnfair is a marketplace where users can place bets against each other,rather 
 
 ## Dev Setup
 
-### Database connection
+### Database set-up and connection
+
+You can use the scrip `autobuildDB` to rebuild the databases on migration update
+
+```bash
+    sudo ./utils/autobuildDB.sh
+```
+
+### Database connection (Manual)
 
 1. Create the databases by running `utils/init.sql`
 2. Run the migrations for the testing db
