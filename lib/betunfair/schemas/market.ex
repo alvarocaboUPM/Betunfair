@@ -50,9 +50,11 @@ defmodule BetUnfair.Schemas.Market do
 
   @primary_key {:market_name, :string, autogenerate: false}
 
+
   schema "market" do
     field(:market_description, :string)
     field(:status, BetUnfair.Schemas.Market.Status)
+    timestamps(type: :utc_datetime, inserted_at: :inserted_at, updated_at: :updated_at)
   end
 
   def changeset(market, params \\ %{}) do
