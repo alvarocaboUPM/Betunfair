@@ -10,19 +10,18 @@ defmodule BetUnfair.Controllers.User do
   @spec user_create(String.t(), String.t()) :: {:ok, map()}
   def user_create(username, full_name) do
     changeset =
-      %BetUnfair.Schemas.User{}
-      |> Ecto.Changeset.cast(
+      BetUnfair.Schemas.User.changeset(
+        %BetUnfair.Schemas.User{},
         %{
           username: username,
           full_name: full_name,
           password: nil,
           wallet_balance: 0.0
-        },
-        [:username, :full_name, :password, :wallet_balance]
+        }
       )
-      |> BetUnfair.Repo.insert()
 
-    case changeset do
+
+    case BetUnfair.Repo.insert(changeset) do
       {:ok, user} -> {:ok, user}
       {:error, changeset} -> {:error, changeset}
     end
