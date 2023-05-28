@@ -21,7 +21,7 @@ RUN mix local.hex --force && \
 # Set up the database
 RUN service mariadb start && \
     sleep 1 && \
-    mysql -u root -e "CREATE DATABASE IF NOT EXISTS betunfair; CREATE DATABASE IF NOT EXISTS betunfair_test; CREATE USER 'betunfair'@'localhost' IDENTIFIED BY '9sX5^6a2jJng'; GRANT ALL PRIVILEGES ON betunfair.* TO 'betunfair'@'localhost'; GRANT ALL PRIVILEGES ON betunfair_test.* TO 'betunfair'@'localhost'; FLUSH PRIVILEGES;" && \
+    mysql -u root < utils/init.sql && \
     mix ecto.create && \
     mix ecto.migrate
 
