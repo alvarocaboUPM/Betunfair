@@ -47,6 +47,7 @@ jobs:
       ports:
         - 3306:3306
       env:
+        ImageOS: ubuntu20
         MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         MYSQL_DATABASE: betunfair_test
         MYSQL_USER: betunfair
