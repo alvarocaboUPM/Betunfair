@@ -102,12 +102,24 @@ defmodule BetUnfair.Controllers.User do
   """
   @spec user_get(map()) :: {:ok, map()}
   def user_get(user) do
-    case BetUnfair.Repo.get_by(BetUnfair.User, user_id: user[:user_id]) do
+    case BetUnfair.Repo.get_by(BetUnfair.User, username: user[:username]) do
       nil ->
         {:error, "User not found"}
 
       %BetUnfair.Schemas.User{wallet_balance: wallet_balance} ->
         {:ok, wallet_balance}
     end
+  end
+
+
+  @doc """
+  Returns an enumerable containing all bets of the user
+
+  ## Examples
+
+  """
+  @spec user_bets(id :: user_id()):: Enumerable.t(bet_id())
+  def user_bets(user) do
+    # code here
   end
 end

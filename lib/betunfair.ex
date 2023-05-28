@@ -53,6 +53,10 @@ defmodule BetUnfair do
     GenServer.call(__MODULE__, {:user_get, user})
   end
 
+  def user_bets(user) do
+    GenServer.call(__MODULE__, {:user_get, user})
+  end
+
   ## Server Callbacks
 
   @impl true
@@ -88,6 +92,14 @@ defmodule BetUnfair do
   def handle_call({:user_get, user}, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.User.user_get(user)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:user_bets, user}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.User.user_bets(user)
 
     {:reply, result, state}
   end
