@@ -16,6 +16,7 @@ COPY . /app
 
 # Install dependencies
 RUN mix local.hex --force && \
+RUN mix local.rebar --force && \
     mix deps.get
 
 # Set up the database
