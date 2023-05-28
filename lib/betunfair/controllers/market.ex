@@ -1,4 +1,5 @@
 defmodule BetUnfair.Controllers.Market do
+  import Ecto.Query
   @doc """
   Creates a new market with the given name and description.
 
@@ -26,31 +27,41 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   @doc """
-  Retrieves a list of all markets.
+Retrieves a list of all markets.
 
-  ## Examples
+## Examples
 
-      markets = BetUnfair.market_list()
+    markets = BetUnfair.market_list()
 
-  """
-  @spec market_list() :: list()
-  def market_list() do
-    # Retrieves a list of all markets.
-  end
+"""
+@spec market_list() :: list()
+def market_list() do
+  markets =
+  BetUnfair.Schemas.Market |>
+  BetUnfair.Repo.all()
 
-  @doc """
-  Retrieves a list of active markets.
+  {:ok, markets}
+end
 
-  ## Examples
+@doc """
+Retrieves a list of active markets.
 
-      active_markets = BetUnfair.market_list_active()
-      IO.inspect(active_markets)
+## Examples
 
-  """
-  @spec market_list_active() :: list()
-  def market_list_active() do
-    # Retrieves a list of active markets.
-  end
+    active_markets = BetUnfair.market_list_active()
+    IO.inspect(active_markets)
+
+"""
+@spec market_list_active() :: list()
+def market_list_active() do
+
+  query =
+    from m in BetUnfair.Schemas.Market,
+     where: [status: :active],
+     select: [:market_name, :market_description, :status]
+  markets = BetUnfair.Repo.all(query)
+  {:ok, markets}
+end
 
   @doc """
   Cancels the specified market.

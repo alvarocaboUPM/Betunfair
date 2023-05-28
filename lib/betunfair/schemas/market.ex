@@ -32,9 +32,11 @@ defmodule BetUnfair.Schemas.Market do
     @impl Ecto.Type
     def load(value) when is_binary(value) do
       case value do
-        ["active", "frozen", "cancelled" | nil] -> {:ok, String.to_existing_atom(value)}
-        other_value when other_value == "true" -> {:ok, {:settled, true}}
-        other_value when other_value == "false" -> {:ok, {:settled, false}}
+        "active" -> {:ok, :active}
+        "frozen" -> {:ok, :frozen}
+        "cancelled" -> {:ok, :cancelled}
+        "true" -> {:ok, {:settled, true}}
+        "false" -> {:ok, {:settled, false}}
         _ -> :error
       end
     end

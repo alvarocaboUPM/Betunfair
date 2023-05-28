@@ -156,7 +156,7 @@ defmodule BetUnfair do
   end
 
   @impl true
-  def handle_call({:market_list}, _from, state) do
+  def handle_call(:market_list, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.Market.market_list()
 
@@ -164,7 +164,7 @@ defmodule BetUnfair do
   end
 
   @impl true
-  def handle_call({:market_list_active}, _from, state) do
+  def handle_call(:market_list_active, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.Market.market_list_active()
 

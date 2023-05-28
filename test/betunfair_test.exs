@@ -44,11 +44,11 @@ defmodule BetunfairTest do
   #   assert {:ok,%{id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
   #   assert is_ok(BetUnfair.stop())
   #   assert  {:ok,_} = BetUnfair.start_link(BetUnfair)
-  #   assert {:ok,%{balance: 1000}} = BetUnfair.user_get(u1)
-  #   assert {:ok,markets} = BetUnfair.market_list()
-  #   assert 1 = length(markets)
-  #   assert {:ok,markets} = BetUnfair.market_list_active()
-  #   assert 1 = length(markets)
+  #   assert {:ok, 1000.0} = BetUnfair.user_get_balance(u1)
+     assert {:ok,markets} = BetUnfair.market_list()
+     assert 1 = length(markets)
+     assert {:ok,markets} = BetUnfair.market_list_active()
+     assert 1 = length(markets)
     end
 
   # test "user_bet1" do
