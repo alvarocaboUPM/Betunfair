@@ -1,4 +1,4 @@
-defmodule BetUnfair.Market do
+defmodule BetUnfair.Controllers.Market do
 
   def market_create(name, description) do
     # code here

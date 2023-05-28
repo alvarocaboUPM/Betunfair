@@ -1,4 +1,4 @@
-defmodule BetUnfair.Bet do
+defmodule BetUnfair.Controllers.Bet do
 
   def bet_back(user_id, market_id, stake, odds) do
     # code here

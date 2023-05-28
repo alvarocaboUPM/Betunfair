@@ -1,6 +1,6 @@
-# Betunfair
+# BetUnfair
 
-Betunfair is a marketplace where users can place bets against each other,rather than against a bookmaker
+BetUnfair is a marketplace where users can place bets against each other,rather than against a bookmaker
 
 ## Dev Setup
 
@@ -20,8 +20,7 @@ Betunfair is a marketplace where users can place bets against each other,rather 
   
    ```bash
     mix ecto.create && \
-    mix ecto.migrate && \
-    
+    mix ecto.migrate
     ```
 
 4. You can test the connection by running:
