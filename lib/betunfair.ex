@@ -53,6 +53,24 @@ defmodule BetUnfair do
     GenServer.call(__MODULE__, {:user_get, user})
   end
 
+  ## BET API
+
+  def bet_back(user, market, stake, odds) do
+    GenServer.call(__MODULE__, {:bet_back, user, market, stake, odds})
+  end
+
+  def bet_lay(user, market, stake, odds) do
+    GenServer.call(__MODULE__, {:bet_lay, user, market, stake, odds})
+  end
+
+  def bet_cancel(bet_id) do
+    GenServer.call(__MODULE__, {:bet_cancel, bet_id})
+  end
+
+  def bet_get(bet_id) do
+    GenServer.call(__MODULE__, {:bet_get, bet_id})
+  end
+
   ## Server Callbacks
 
   @impl true
@@ -88,6 +106,38 @@ defmodule BetUnfair do
   def handle_call({:user_get, user}, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.User.user_get(user)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:bet_back, user, market, stake, odds}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Bet.bet_back(user, market, stake, odds)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:bet_lay, user, market, stake, odds}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Bet.bet_lay(user, market, stake, odds)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:bet_cancel, bet_id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Bet.bet_cancel(bet_id)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:bet_get, bet_id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Bet.bet_get(bet_id)
 
     {:reply, result, state}
   end
