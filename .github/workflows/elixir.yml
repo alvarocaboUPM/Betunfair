@@ -36,4 +36,4 @@ jobs:
         push: true
         tags: alvarocabof/betunfair:latest, alvarocabof/betunfair:${{ github.run_number }}
         secrets:  |
-          GIT_AUTH_TOKEN =${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTH_TOKEN =${{ secrets.ALVAROCABOUPM_TOKEN }}
