@@ -78,7 +78,7 @@ defmodule BetUnfair.Controllers.Market do
     change = BetUnfair.Schemas.Market.changeset(market, %{status: :cancelled})
 
     case BetUnfair.Repo.update(change) do
-      {:ok, _} -> :ok
+      {:ok, m} -> {:ok, m}
       {:error, changeset} -> {:error, "Failed to update market: #{inspect(changeset.errors)}"}
     end
   end
@@ -109,9 +109,14 @@ defmodule BetUnfair.Controllers.Market do
       :ok = BetUnfair.market_settle(m1, "Win")
 
   """
-  @spec market_settle(map(), term()) :: :ok | {:error, String.t()}
-  def market_settle(id, result) do
-    # Sets the result of the specified market.
+  @spec market_settle(map(), boolean()) :: :ok | {:error, String.t()}
+  def market_settle(market, result) when is_boolean(result) do
+    changeset = BetUnfair.Schemas.Market.changeset(market, %{status: {:settled, result}})
+
+    case BetUnfair.Repo.update(changeset) do
+      {:ok, m} -> {:ok, m}
+      {:error, changeset} -> {:error, "Failed to update market: #{inspect(changeset.errors)}"}
+    end
   end
 
   @doc """

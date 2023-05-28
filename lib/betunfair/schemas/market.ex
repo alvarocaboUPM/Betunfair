@@ -15,7 +15,8 @@ defmodule BetUnfair.Schemas.Market do
       :active,
       :frozen,
       :cancelled,
-      {:settled, :boolean}
+      {:settled, true},
+      {:settled, false}
     ]
 
     @impl Ecto.Type
@@ -26,7 +27,13 @@ defmodule BetUnfair.Schemas.Market do
     def cast(_), do: :error
 
     @impl Ecto.Type
-    def dump(value) when value in @t, do: {:ok, to_string(value)}
+    def dump(value) when value in @t do
+      case is_tuple(value) do
+        false -> {:ok, to_string(value)}
+        true -> {:ok, to_string(elem(value, 1))}
+        end
+    end
+
     def dump(_), do: :error
 
     @impl Ecto.Type
@@ -55,7 +62,7 @@ defmodule BetUnfair.Schemas.Market do
 
   schema "market" do
     field(:market_description, :string)
-    field(:status, BetUnfair.Schemas.Market.Status)
+    field(:status, BetUnfair.Schemas.Market.Status, default: :active)
     timestamps(type: :utc_datetime, inserted_at: :inserted_at, updated_at: :updated_at)
   end
 
