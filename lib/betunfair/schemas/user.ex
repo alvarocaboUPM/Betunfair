@@ -8,6 +8,7 @@ defmodule BetUnfair.Schemas.User do
     field :full_name, :string
     field :password, :string
     field :wallet_balance, :float
+    timestamps(type: :utc_datetime, inserted_at: :inserted_at, updated_at: :updated_at)
   end
 
   def changeset(user, params \\ %{}) do
