@@ -49,17 +49,16 @@ defmodule BetUnfair.Controllers.Bet do
                   {:ok, user} ->
 
                     # create bet
-                    bet_id = 0 # generate random number for id TODO
                     changeset = BetUnfair.Schemas.Bet.changeset(
                       %BetUnfair.Schemas.Bet{},
                         %{
-                          bet_id: bet_id,
                           username: user_id,
-                          event_id: market_id,
-                          amount: stake,
+                          market_id: market_id,
+                          original_stake: stake,
+                          remaining_stake: stake
                           odds: odds,
-                          bet_type: "bet_back",
-                          is_matched: false
+                          bet_type: :back,
+                          matched_bets: {Arrats.new([]), %{}}
                         }
                     )
 
@@ -134,17 +133,16 @@ defmodule BetUnfair.Controllers.Bet do
                   {:ok, user} ->
 
                     # create bet
-                    bet_id = 0 # generate random number for id TODO
                     changeset = BetUnfair.Schemas.Bet.changeset(
                       %BetUnfair.Schemas.Bet{},
                         %{
-                          bet_id: bet_id,
                           username: user_id,
-                          event_id: market_id,
-                          amount: stake,
+                          market_id: market_id,
+                          original_stake: stake,
+                          remaining_stake: stake,
                           odds: odds,
-                          bet_type: "bet_lay",
-                          is_matched: false
+                          bet_type: :lay,
+                          matched_bets: {Arrats.new([]), %{}}
                         }
                     )
 
@@ -185,7 +183,7 @@ defmodule BetUnfair.Controllers.Bet do
     case BetUnfair.Controllers.Bet.bet_get(id) do
       {:ok, _} ->
         # change status and remove unmatched stake
-        change = BetUnfair.Schemas.Bet.changeset(market, %{status: :cancelled, :remaining_amount: 0})
+        change = BetUnfair.Schemas.Bet.changeset(market, %{status: :cancelled, :remaining_stake: 0})
 
         case BetUnfair.Repo.update(change) do
           {:ok, m} -> {:ok, m}
@@ -221,7 +219,6 @@ defmodule BetUnfair.Controllers.Bet do
       bet_data ->
         {:ok, bet_data}
     end
-    # DOES NOT CONTAIN matched_bets YET
   end
 
 end
