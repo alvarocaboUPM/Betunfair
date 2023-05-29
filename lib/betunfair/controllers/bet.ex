@@ -9,36 +9,36 @@ defmodule BetUnfair.Controllers.Bet do
     assert {:ok, 1} = Betunfair.bet_back("user", 1, 25, 1.5)
 
   """
-  @spec bet_back(String.t(),
-                 number(),
+  @spec bet_back(BetUnfair.Schemas.User,
+                 BetUnfair.Schemas.Market,
                  number(),
                  number()) :: {:ok, number()}
-  def bet_back(user_id, market_id, stake, odds) do
+  def bet_back(user, market, stake, odds) do
 
     # check if user exists
-    case BetUnfair.user_get(user_id) do
+    case BetUnfair.Controllers.User.user_get(user) do
       {:ok, _} ->
         # check if market exists
-        case BetUnfair.market_get(market_id) do
+        case BetUnfair.Controllers.Market.market_get(market) do
           {:ok, _} ->
 
             # check user balance, if enough, reduce it
-            query = from u in "Users",
-                  where: u.username == ^user_id,
+            query = from u in "user",
+                  where: u.username == ^user.username,
                   select: [u.wallet_balance, u.full_name]
 
             result = BetUnfair.Repo.all(query)
 
-            if result[0] >= stake  do
+            if result >= stake  do
                 # can bet
 
                 # substract money from user
                 new_balance = result - stake
                 changeset =
                   BetUnfair.Schemas.User.changeset(
-                    %BetUnfair.Schemas.User{},
+                    user,
                     %{
-                      username: user_id,
+                      username: user.username,
                       full_name: result[1],
                       wallet_balance: new_balance
                     }
@@ -53,8 +53,8 @@ defmodule BetUnfair.Controllers.Bet do
                       user,
                         %{
                           bet_id: bet_id,
-                          username: user_id,
-                          event_id: market_id,
+                          username: user.username,
+                          market_id: market.market_id,
                           amount: stake,
                           odds: odds,
                           bet_type: "bet_back",
@@ -93,22 +93,22 @@ defmodule BetUnfair.Controllers.Bet do
     assert {:ok, 1} = Betunfair.bet_lay("user", 1, 25, 1.5)
 
   """
-  @spec bet_lay(String.t(),
-                 number(),
+  @spec bet_lay(BetUnfair.Schemas.User,
+                 BetUnfair.Schemas.Market,
                  number(),
                  number()) :: {:ok, number()}
-  def bet_lay(user_id, market_id, stake, odds) do
+  def bet_lay(user, market, stake, odds) do
 
     # check if user exists
-    case BetUnfair.Controllers.User.user_get(user_id) do
+    case BetUnfair.Controllers.User.user_get(user) do
       {:ok, _} ->
         # check if market exists
-        case BetUnfair.market_get(market_id) do
+        case BetUnfair.market_get(market) do
           {:ok, _} ->
 
             # check user balance, if enough, reduce it
             query = from u in "Users",
-                  where: u.username == ^user_id,
+                  where: u.username == ^user.username,
                   select: [u.wallet_balance, u.full_name]
 
             result = BetUnfair.Repo.all(query)
@@ -122,7 +122,7 @@ defmodule BetUnfair.Controllers.Bet do
                   BetUnfair.Schemas.User.changeset(
                     %BetUnfair.Schemas.User{},
                     %{
-                      username: user_id,
+                      username: user.username,
                       full_name: result[1],
                       wallet_balance: new_balance
                     }
@@ -137,8 +137,8 @@ defmodule BetUnfair.Controllers.Bet do
                       user,
                         %{
                           bet_id: bet_id,
-                          username: user_id,
-                          event_id: market_id,
+                          username: user.username,
+                          market_id: market.market_id,
                           amount: stake,
                           odds: odds,
                           bet_type: "bet_lay",
@@ -180,7 +180,7 @@ defmodule BetUnfair.Controllers.Bet do
   @spec bet_cancel(number()) :: :ok
   def bet_cancel(id) do
   # check if bet exists
-    # case BetUnfair.Controllers.User.user_get(user_id) do
+    # case BetUnfair.Controllers.User.user_get(user) do
     #   {:ok, _} ->
     #     # change status and remove unmatched stake
     #     change = BetUnfair.Schemas.Bet.changeset(market, %{status: :cancelled, remaining_amount: 0})
@@ -202,7 +202,7 @@ defmodule BetUnfair.Controllers.Bet do
 
     assert {:ok, %{bet_type: :back,
                    market_id: market,
-                   user_id: user,
+                   user: user,
                    odds: PONER INTEGER,
                    original_stake: PONER INTEGER,
                    remaining_stake: PONER INTEGER,
@@ -210,9 +210,15 @@ defmodule BetUnfair.Controllers.Bet do
                    status: :active}} = Betunfair.bet_get(1)
 
   """
-  @spec bet_get(number()) :: {:ok, map()}
-  def bet_get(id) do
-    # code here
+  @spec bet_get(BetUnfair.Schemas.Bet) :: {:ok, map()}
+  def bet_get(bet) do
+    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, bet_id: bet.bet_id) do
+      nil ->
+        {:error, "Bet not found"}
+
+      bet_data ->
+        {:ok, bet_data}
+    end
   end
 
 end
