@@ -181,7 +181,20 @@ defmodule BetUnfair.Controllers.Bet do
   """
   @spec bet_cancel(number()) :: :ok
   def bet_cancel(id) do
-    # code here
+  # check if bet exists
+    case BetUnfair.Controllers.User.user_get(user_id) do
+      {:ok, _} ->
+        # change status and remove unmatched stake
+        change = BetUnfair.Schemas.Bet.changeset(market, %{status: :cancelled, :remaining_amount: 0})
+
+        case BetUnfair.Repo.update(change) do
+          {:ok, m} -> {:ok, m}
+          {:error, changeset} -> {:error, "Failed to update bet: #{inspect(changeset.errors)}"}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   @doc """
