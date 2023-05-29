@@ -61,7 +61,7 @@ defmodule BetUnfair.Schemas.Bet do
 
   schema "bet" do
     field(:username, :string)
-    field(:market_id, :integer)
+    field(:market_name, :string)
     field(:original_stake, :integer)
     field(:remaining_stake, :integer)
     field(:odds, :integer)
@@ -73,7 +73,7 @@ defmodule BetUnfair.Schemas.Bet do
 
   def changeset(bet, params \\ %{}) do
     bet
-    |> cast(params, [:bet_id, :username, :market_id, :original_stake, :remaining_stake, :odds, :bet_type, :matched_bets, :status])
-    |> validate_required([:username, :market_id])
+    |> cast(params, [:bet_id, :username, :market_name, :original_stake, :remaining_stake, :odds, :bet_type, :matched_bets, :status])
+    |> validate_required([:username, :market_name])
   end
 end

@@ -12,35 +12,30 @@ defmodule BetUnfair.Controllers.Bet do
   @spec bet_back(String.t(),
                  number(),
                  number(),
-                 number()) :: {:ok, number()}
+                 number()) :: {:ok, map()}
   def bet_back(user_id, market_id, stake, odds) do
 
     # check if user exists
     case BetUnfair.Controllers.User.user_get(user_id) do
-      {:ok, _} ->
+      {:ok, user_data} ->
         # check if market exists
-        case BetUnfair.Controllers.market.market_get(market_id) do
+        case BetUnfair.Controllers.Market.market_get(market_id) do
           {:ok, _} ->
 
             # check user balance, if enough, reduce it
-            query = from u in "Users",
-                  where: u.username == ^user_id,
-                  select: [u.wallet_balance, u.full_name]
-            
-            result = BetUnfair.Repo.all(query)
+            {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_data)
 
-            case result[0] do
-              result[0] >= stake -> 
+              if balance >= stake do
                 # can bet
 
                 # substract money from user
-                new_balance = result - stake
+                new_balance = balance - stake
                 changeset =
                   BetUnfair.Schemas.User.changeset(
-                    %BetUnfair.Schemas.User{},
+                    user_id,
                     %{
-                      username: user_id,
-                      full_name: result[1],
+                      username: user_id.username,
+                      full_name: user_data.full_name,
                       wallet_balance: new_balance
                     }
                   )
@@ -49,33 +44,31 @@ defmodule BetUnfair.Controllers.Bet do
                   {:ok, user} ->
 
                     # create bet
-                    changeset = BetUnfair.Schemas.Bet.changeset(
+                    changeset1 = BetUnfair.Schemas.Bet.changeset(
                       %BetUnfair.Schemas.Bet{},
                         %{
-                          username: user_id,
-                          market_id: market_id,
+                          username: user_id.username,
+                          market_name: market_id.market_name,
                           original_stake: stake,
-                          remaining_stake: stake
+                          remaining_stake: stake,
                           odds: odds,
                           bet_type: :back,
-                          matched_bets: {Arrats.new([]), %{}}
+                          matched_bets: nil
                         }
                     )
 
                     # insert into database
-                    case BetUnfair.Repo.insert(changeset) do
+                    case BetUnfair.Repo.insert(changeset1) do
                       {:ok, bet} -> {:ok, bet}
-                      {:error, changeset} -> {:error, changeset}
+                      {:error, changeset1} -> {:error, changeset1}
                     end
 
-                  {:error, changeset} ->
-                    {:error, changeset} -> {:error, changeset}
+                  {:error, changeset} -> 
+                    {:error, changeset}
                 end
-
-              result[0] < stake -> 
+              else
                 {:error, "Insuficient funds"}
-            end
-
+              end
           {:error, reason} ->
             {:error, reason}
         end
@@ -96,35 +89,30 @@ defmodule BetUnfair.Controllers.Bet do
   @spec bet_lay(String.t(),
                  number(),
                  number(),
-                 number()) :: {:ok, number()}
+                 number()) :: {:ok, map()}
   def bet_lay(user_id, market_id, stake, odds) do
 
     # check if user exists
     case BetUnfair.Controllers.User.user_get(user_id) do
-      {:ok, _} ->
+      {:ok, user_data} ->
         # check if market exists
-        case BetUnfair.Controllers.market.market_get(market_id) do
+        case BetUnfair.Controllers.Market.market_get(market_id) do
           {:ok, _} ->
 
             # check user balance, if enough, reduce it
-            query = from u in "Users",
-                  where: u.username == ^user_id,
-                  select: [u.wallet_balance, u.full_name]
-            
-            result = BetUnfair.Repo.all(query)
+            {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_data)
 
-            case result[0] do
-              result[0] >= stake -> 
+              if balance >= stake do
                 # can bet
 
                 # substract money from user
-                new_balance = result - stake
+                new_balance = balance - stake
                 changeset =
                   BetUnfair.Schemas.User.changeset(
-                    %BetUnfair.Schemas.User{},
+                    user_id,
                     %{
-                      username: user_id,
-                      full_name: result[1],
+                      username: user_id.username,
+                      full_name: user_data.full_name,
                       wallet_balance: new_balance
                     }
                   )
@@ -133,33 +121,31 @@ defmodule BetUnfair.Controllers.Bet do
                   {:ok, user} ->
 
                     # create bet
-                    changeset = BetUnfair.Schemas.Bet.changeset(
+                    changeset1 = BetUnfair.Schemas.Bet.changeset(
                       %BetUnfair.Schemas.Bet{},
                         %{
-                          username: user_id,
-                          market_id: market_id,
+                          username: user_id.username,
+                          market_name: market_id.market_name,
                           original_stake: stake,
                           remaining_stake: stake,
                           odds: odds,
                           bet_type: :lay,
-                          matched_bets: {Arrats.new([]), %{}}
+                          matched_bets: nil
                         }
                     )
 
                     # insert into database
-                    case BetUnfair.Repo.insert(changeset) do
+                    case BetUnfair.Repo.insert(changeset1) do
                       {:ok, bet} -> {:ok, bet}
-                      {:error, changeset} -> {:error, changeset}
+                      {:error, changeset1} -> {:error, changeset1}
                     end
 
                   {:error, changeset} ->
-                    {:error, changeset} -> {:error, changeset}
+                    {:error, changeset}
                 end
-
-              result[0] < stake -> 
+              else
                 {:error, "Insuficient funds"}
-            end
-
+              end
           {:error, reason} ->
             {:error, reason}
         end
@@ -177,13 +163,13 @@ defmodule BetUnfair.Controllers.Bet do
     assert :ok = Betunfair.bet_cancel(1)
 
   """
-  @spec bet_cancel(number()) :: :ok
-  def bet_cancel(id) do
+  @spec bet_cancel(map()) :: :ok
+  def bet_cancel(bet) do
   # check if bet exists
-    case BetUnfair.Controllers.Bet.bet_get(id) do
-      {:ok, _} ->
+    case BetUnfair.Controllers.Bet.bet_get(bet) do
+      {:ok, bet} ->
         # change status and remove unmatched stake
-        change = BetUnfair.Schemas.Bet.changeset(market, %{status: :cancelled, :remaining_stake: 0})
+        change = BetUnfair.Schemas.Bet.changeset(bet, %{status: :cancelled, remaining_stake: 0})
 
         case BetUnfair.Repo.update(change) do
           {:ok, m} -> {:ok, m}
@@ -207,12 +193,12 @@ defmodule BetUnfair.Controllers.Bet do
                    original_stake: 20,
                    remaining_stake: 2,
                    matched_bets: [2, 3],
-                   status: :active}} = Betunfair.bet_get(1)
+                   status: :active}} = Betunfair.bet_get(bet)
 
   """
-  @spec bet_get(number()) :: {:ok, map()}
-  def bet_get(id) do
-    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, bet_id: id) do
+  @spec bet_get(map()) :: {:ok, map()}
+  def bet_get(bet) do
+    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, bet_id: bet.bet_id) do
       nil ->
         {:error, "Bet not found"}
 
