@@ -63,11 +63,11 @@ defmodule BetUnfair.Schemas.Bet do
   schema "bet" do
     field(:username, :string)
     field(:market_id, :integer)
-    field(:amount, :float)
-    field(:remaining_amount, :float)
-    field(:odds, :float)
-    field(:bet_type, :string)
-    field(:is_matched, :boolean)
+    field(:bet_type, Ecto.Enum, values: [:lay, :back])
+    field(:odds, :integer)
+    field(:original_stake, :integer)
+    field(:remaining_stake, :integer)
+    field(:matched_bets, {:array, :map})
     field(:status, BetUnfair.Schemas.Bet.Status, default: :active)
     timestamps( inserted_at: :inserted_at, updated_at: :updated_at)
   end
