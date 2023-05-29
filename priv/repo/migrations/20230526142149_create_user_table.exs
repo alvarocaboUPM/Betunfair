@@ -7,6 +7,8 @@ defmodule BetUnfair.Repo.Migrations.CreateUsersTable do
       add :full_name, :string
       add :password, :string
       add :wallet_balance, :float
+
+      timestamps()
     end
   end
 end
