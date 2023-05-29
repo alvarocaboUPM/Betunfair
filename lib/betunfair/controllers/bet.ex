@@ -182,7 +182,7 @@ defmodule BetUnfair.Controllers.Bet do
   @spec bet_cancel(number()) :: :ok
   def bet_cancel(id) do
   # check if bet exists
-    case BetUnfair.Controllers.User.user_get(user_id) do
+    case BetUnfair.Controllers.Bet.bet_get(id) do
       {:ok, _} ->
         # change status and remove unmatched stake
         change = BetUnfair.Schemas.Bet.changeset(market, %{status: :cancelled, :remaining_amount: 0})
@@ -205,16 +205,23 @@ defmodule BetUnfair.Controllers.Bet do
     assert {:ok, %{bet_type: :back,
                    market_id: market,
                    user_id: user,
-                   odds: PONER INTEGER,
-                   original_stake: PONER INTEGER,
-                   remaining_stake: PONER INTEGER,
+                   odds: 1.5,
+                   original_stake: 20,
+                   remaining_stake: 2,
                    matched_bets: [2, 3],
                    status: :active}} = Betunfair.bet_get(1)
 
   """
   @spec bet_get(number()) :: {:ok, map()}
   def bet_get(id) do
-    # code here
+    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, bet_id: id) do
+      nil ->
+        {:error, "Bet not found"}
+
+      bet_data ->
+        {:ok, bet_data}
+    end
+    # DOES NOT CONTAIN matched_bets YET
   end
 
 end
