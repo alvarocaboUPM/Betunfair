@@ -24,5 +24,4 @@ defmodule BetUnfair.Repo.Migrations.CreateBetsTable do
     create index(:matched_bets, [:bet_id])
     create index(:matched_bets, [:matched_bet_id])
   end
-
 end

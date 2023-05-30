@@ -1,5 +1,4 @@
 defmodule BetUnfair.Controllers.Bet do
-  import Ecto.Query
 
   @doc """
   Creates a new backing bet by a user and in a market
@@ -39,9 +38,9 @@ defmodule BetUnfair.Controllers.Bet do
                       wallet_balance: new_balance
                     }
                   )
-                
+
                 case BetUnfair.Repo.update(changeset) do
-                  {:ok, user} ->
+                  {:ok, _} ->
 
                     # create bet
                     changeset1 = BetUnfair.Schemas.Bet.changeset(
@@ -63,7 +62,7 @@ defmodule BetUnfair.Controllers.Bet do
                       {:error, changeset1} -> {:error, changeset1}
                     end
 
-                  {:error, changeset} -> 
+                  {:error, changeset} ->
                     {:error, changeset}
                 end
               else
@@ -116,9 +115,9 @@ defmodule BetUnfair.Controllers.Bet do
                       wallet_balance: new_balance
                     }
                   )
-                
+
                 case BetUnfair.Repo.update(changeset) do
-                  {:ok, user} ->
+                  {:ok, _} ->
 
                     # create bet
                     changeset1 = BetUnfair.Schemas.Bet.changeset(
@@ -173,7 +172,7 @@ defmodule BetUnfair.Controllers.Bet do
         change = BetUnfair.Schemas.Bet.changeset(bet, %{status: :cancelled, remaining_stake: 0})
 
         case BetUnfair.Repo.update(change) do
-          {:ok, m} -> :ok
+          {:ok, _} -> :ok
           {:error, changeset} -> {:error, "Failed to update bet: #{inspect(changeset.errors)}"}
         end
 

@@ -109,6 +109,10 @@ defmodule BetUnfair do
     GenServer.call(__MODULE__, {:market_bets, id})
   end
 
+  def market_match(id) do
+    GenServer.call(__MODULE__, {:market_match, id})
+  end
+
   ## Server Callbacks
 
   @impl true
@@ -162,6 +166,8 @@ defmodule BetUnfair do
 
     {:reply, result, state}
   end
+
+    ## BET
 
   @impl true
   def handle_call({:bet_back, user, market, stake, odds}, _from, state) do
@@ -258,6 +264,14 @@ defmodule BetUnfair do
   def handle_call({:market_match, id}, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.Market.market_match(id)
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:market_get, id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_get(id)
 
     {:reply, result, state}
   end
