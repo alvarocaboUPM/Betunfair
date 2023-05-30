@@ -40,7 +40,8 @@ defmodule BetunfairTest do
     assert is_ok(BetUnfair.user_deposit(u1,2000))
     assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
-  #   assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
+    assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
+    assert :ok = BetUnfair.bet_cancel(b)
   #   assert {:ok,%{id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
 
     # FIX needed (Probablemente no hagan falta por el pool de testing)

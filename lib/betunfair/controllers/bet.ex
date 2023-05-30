@@ -166,19 +166,20 @@ defmodule BetUnfair.Controllers.Bet do
   @spec bet_cancel(map()) :: :ok
   def bet_cancel(bet) do
   # check if bet exists
-    case BetUnfair.Controllers.Bet.bet_get(bet) do
-      {:ok, bet} ->
+    ## REMOVED UNTIL BET_GET WORKS
+    ##case BetUnfair.Controllers.Bet.bet_get(bet) do
+    ##  {:ok, bet} ->
         # change status and remove unmatched stake
         change = BetUnfair.Schemas.Bet.changeset(bet, %{status: :cancelled, remaining_stake: 0})
 
         case BetUnfair.Repo.update(change) do
-          {:ok, m} -> {:ok, m}
+          {:ok, m} -> :ok
           {:error, changeset} -> {:error, "Failed to update bet: #{inspect(changeset.errors)}"}
         end
 
-      {:error, reason} ->
-        {:error, reason}
-    end
+      ##{:error, reason} ->
+      ##  {:error, reason}
+    ##end
   end
 
   @doc """
