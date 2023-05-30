@@ -1,5 +1,6 @@
 defmodule BetUnfair.Controllers.Bet do
 
+  @type bet_id() :: String.t()
   @doc """
   Creates a new backing bet by a user and in a market
 
@@ -11,7 +12,7 @@ defmodule BetUnfair.Controllers.Bet do
   @spec bet_back(String.t(),
                  number(),
                  number(),
-                 number()) :: {:ok, map()}
+                 number()) :: {:ok, bet_id()}
   def bet_back(user_id, market_id, stake, odds) do
 
     # check if user exists
@@ -19,7 +20,7 @@ defmodule BetUnfair.Controllers.Bet do
       {:ok, user_data} ->
         # check if market exists
         case BetUnfair.Controllers.Market.market_get(market_id) do
-          {:ok, _} ->
+          {:ok, market} ->
             # check user balance, if enough, reduce it
             {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_data)
 
@@ -41,7 +42,7 @@ defmodule BetUnfair.Controllers.Bet do
                       %BetUnfair.Schemas.Bet{},
                         %{
                           username: user_id.username,
-                          market_name: market_id.market_name,
+                          market_name: market.market_name,
                           original_stake: stake,
                           remaining_stake: stake,
                           odds: odds,
@@ -52,7 +53,7 @@ defmodule BetUnfair.Controllers.Bet do
 
                     # insert into database
                     case BetUnfair.Repo.insert(changeset1) do
-                      {:ok, bet} -> {:ok, bet}
+                      {:ok, bet} -> {:ok, bet.bet_id}
                       {:error, changeset1} -> {:error, changeset1}
                     end
 
@@ -82,7 +83,7 @@ defmodule BetUnfair.Controllers.Bet do
   @spec bet_lay(String.t(),
                  number(),
                  number(),
-                 number()) :: {:ok, map()}
+                 number()) :: {:ok, bet_id()}
   def bet_lay(user_id, market_id, stake, odds) do
 
     # check if user exists
@@ -90,7 +91,7 @@ defmodule BetUnfair.Controllers.Bet do
       {:ok, user_data} ->
         # check if market exists
         case BetUnfair.Controllers.Market.market_get(market_id) do
-          {:ok, _} ->
+          {:ok, market} ->
 
             # check user balance, if enough, reduce it
             {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_data)
@@ -115,8 +116,8 @@ defmodule BetUnfair.Controllers.Bet do
                     changeset1 = BetUnfair.Schemas.Bet.changeset(
                       %BetUnfair.Schemas.Bet{},
                         %{
-                          username: user_id.username,
-                          market_name: market_id.market_name,
+                          username: user_data.username,
+                          market_name: market.market_name,
                           original_stake: stake,
                           remaining_stake: stake,
                           odds: odds,
@@ -127,7 +128,7 @@ defmodule BetUnfair.Controllers.Bet do
 
                     # insert into database
                     case BetUnfair.Repo.insert(changeset1) do
-                      {:ok, bet} -> {:ok, bet}
+                      {:ok, bet} -> {:ok, bet.bet_id}
                       {:error, changeset1} -> {:error, changeset1}
                     end
 
@@ -154,12 +155,11 @@ defmodule BetUnfair.Controllers.Bet do
     assert :ok = Betunfair.bet_cancel(1)
 
   """
-  @spec bet_cancel(map()) :: :ok
-  def bet_cancel(bet) do
-  # check if bet exists
-    ## REMOVED UNTIL BET_GET WORKS
-    ##case BetUnfair.Controllers.Bet.bet_get(bet) do
-    ##  {:ok, bet} ->
+  @spec bet_cancel(bet_id()) :: :ok
+  def bet_cancel(id) do
+
+    case BetUnfair.Controllers.Bet.bet_get(id) do
+      {:ok, bet} ->
         # change status and remove unmatched stake
         change = BetUnfair.Schemas.Bet.changeset(bet, %{status: :cancelled, remaining_stake: 0})
 
@@ -168,9 +168,9 @@ defmodule BetUnfair.Controllers.Bet do
           {:error, changeset} -> {:error, "Failed to update bet: #{inspect(changeset.errors)}"}
         end
 
-      ##{:error, reason} ->
-      ##  {:error, reason}
-    ##end
+      {:error, reason} ->
+        {:error, reason}
+      end
   end
 
   @doc """
@@ -188,9 +188,9 @@ defmodule BetUnfair.Controllers.Bet do
                    status: :active}} = Betunfair.bet_get(bet)
 
   """
-  @spec bet_get(map()) :: {:ok, map()}
-  def bet_get(bet) do
-    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, bet_id: bet.bet_id) do
+  @spec bet_get(bet_id()) :: {:ok, bet_id()}
+  def bet_get(id) do
+    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, bet_id: id) do
       nil ->
         {:error, "Bet not found"}
 
@@ -198,5 +198,4 @@ defmodule BetUnfair.Controllers.Bet do
         {:ok, bet_data}
     end
   end
-
 end

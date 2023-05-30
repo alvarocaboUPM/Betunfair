@@ -43,7 +43,7 @@ defmodule BetunfairTest do
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
     assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
     assert :ok = BetUnfair.bet_cancel(b)
-  #   assert {:ok,%{id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
+  #   assert {:ok,%{  bet_type: :back, remaining_stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
 
     # FIX needed (Probablemente no hagan falta por el pool de testing)
     # assert is_ok(BetUnfair.stop(BetUnfair))
@@ -55,18 +55,18 @@ defmodule BetunfairTest do
     assert 1 = length(markets)
     end
 
-  # test "user_bet1" do
-  #   assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
-  #   assert is_ok(BetUnfair.user_deposit(u1,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
-  #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
-  #   assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
-  #   assert {:ok,%{id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
-  #   assert {:ok,markets} = BetUnfair.market_list()
-  #   assert 1 = length(markets)
-  #   assert {:ok,markets} = BetUnfair.market_list_active()
-  #   assert 1 = length(markets)
-  # end
+  test "user_bet1" do
+    assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
+    assert is_ok(BetUnfair.user_deposit(u1,2000))
+    assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+    assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
+    assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
+    assert {:ok,%{  bet_type: :back, remaining_stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
+    assert {:ok,markets} = BetUnfair.market_list()
+    assert 1 = length(markets)
+    assert {:ok,markets} = BetUnfair.market_list_active()
+    assert 1 = length(markets)
+  end
 
    test "match_bets1" do
     assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
@@ -81,15 +81,18 @@ defmodule BetunfairTest do
     assert {:ok,0.0} = BetUnfair.user_get_balance(u1)
     assert true = (bb1 != bb2)
     assert {:ok,bl1} = BetUnfair.bet_lay(u2,m1,500,140)
+    IO.inspect(bl1)
     assert {:ok,bl2} = BetUnfair.bet_lay(u2,m1,500,150)
     assert {:ok,1000.0} = BetUnfair.user_get_balance(u2)
     assert {:ok, backs} = BetUnfair.market_pending_backs(m1)
-    assert [^bb1,^bb2] = Enum.to_list(backs) |> Enum.map(fn (e) -> elem(e,1) end)
+    assert [^bb1,^bb2] = Enum.to_list(backs) |>
+                         Enum.map(fn (e) -> elem(e,1) end)
     assert {:ok,lays} = BetUnfair.market_pending_lays(m1)
-    assert [^bl2,^bl1] = Enum.to_list(lays) |> Enum.map(fn (e) -> elem(e,1) end)
+    assert [^bl2,^bl1] = Enum.to_list(lays)
+                      |> Enum.map(fn (e) -> elem(e,1) end)
     assert is_ok(BetUnfair.market_match(m1))
-  #   assert {:ok,%{stake: 0}} = BetUnfair.bet_get(bb1)
-  #   assert {:ok,%{stake: 0}} = BetUnfair.bet_get(bl2)
+    assert {:ok,%{remaining_stake: 0}} = BetUnfair.bet_get(bb1)
+    assert {:ok,%{remaining_stake: 0}} = BetUnfair.bet_get(bl2)
    end
 
   # test "match_bets2" do
@@ -107,8 +110,8 @@ defmodule BetunfairTest do
   #   assert {:ok,bl2} = BetUnfair.bet_lay(u2,m1,1000,150)
   #   assert {:ok,%{balance: 0}} = BetUnfair.user_get(u2)
   #   assert is_ok(BetUnfair.market_match(m1))
-  #   assert {:ok,%{stake: 0}} = BetUnfair.bet_get(bb1)
-  #   assert {:ok,%{stake: 500}} = BetUnfair.bet_get(bl2)
+  #   assert {:ok,%{remaining_stake: 0}} = BetUnfair.bet_get(bb1)
+  #   assert {:ok,%{remaining_stake: 500}} = BetUnfair.bet_get(bl2)
   # end
 
   # test "match_bets3" do
@@ -126,8 +129,8 @@ defmodule BetunfairTest do
   #   assert {:ok,bl2} = BetUnfair.bet_lay(u2,m1,100,150)
   #   assert {:ok,%{balance: 1800}} = BetUnfair.user_get(u2)
   #   assert is_ok(BetUnfair.market_match(m1))
-  #   assert {:ok,%{stake: 800}} = BetUnfair.bet_get(bb1)
-  #   assert {:ok,%{stake: 0}} = BetUnfair.bet_get(bl2)
+  #   assert {:ok,%{remaining_stake: 800}} = BetUnfair.bet_get(bb1)
+  #   assert {:ok,%{remaining_stake: 0}} = BetUnfair.bet_get(bl2)
   #   assert {:ok,user_bets} = BetUnfair.user_bets(u1)
   #   assert 2 = length(user_bets)
   # end
