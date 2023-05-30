@@ -2,6 +2,9 @@ defmodule BetUnfair.Schemas.Bet do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias BetUnfair.Schemas.Bet
+  alias BetUnfair.Schemas.Matched_bets
+
   defmodule BetUnfair.Schemas.Bet.Status do
     @behaviour Ecto.Type
 
@@ -66,14 +69,31 @@ defmodule BetUnfair.Schemas.Bet do
     field(:remaining_stake, :integer)
     field(:odds, :integer)
     field(:bet_type, Ecto.Enum, values: [:lay, :back])
-    field(:matched_bets, {:array, :map})
+    many_to_many  :matched_bets,
+                  Bet,
+                  join_through: Matched_bets,
+                  join_keys: [bet_id: :bet_id, matched_bet_id: :matched_bet_id]
     field(:status, BetUnfair.Schemas.Bet.Status, default: :active)
     timestamps(inserted_at: :inserted_at, updated_at: :updated_at)
   end
 
+
   def changeset(bet, params \\ %{}) do
     bet
-    |> cast(params, [:bet_id, :username, :market_name, :original_stake, :remaining_stake, :odds, :bet_type, :matched_bets, :status])
+    |> cast(params, [:bet_id, :username, :market_name, :original_stake, :remaining_stake, :odds, :bet_type, :status])
     |> validate_required([:username, :market_name])
   end
+end
+
+  defmodule BetUnfair.Schemas.Matched_bets do
+    use Ecto.Schema
+
+    @primary_key {:matched_bet_id, :binary_id, autogenerate: true}
+
+    schema "matched_bets" do
+      field :bet_id, :binary_id
+      field :matched_amount, :integer
+      timestamps(inserted_at: :inserted_at, updated_at: :updated_at)
+    end
+
 end
