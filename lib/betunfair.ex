@@ -109,6 +109,10 @@ defmodule BetUnfair do
     GenServer.call(__MODULE__, {:market_bets, id})
   end
 
+  def market_match(id) do
+    GenServer.call(__MODULE__, {:market_match, id})
+  end
+
   ## Server Callbacks
 
   @impl true

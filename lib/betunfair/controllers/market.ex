@@ -233,22 +233,24 @@ defp match_bets([back_bet|t], lay_bets) do
 end
 
 defp calculate_matched_amount(back_bet, lay_bet) do
-  amount = back_bet.remaining_amount * back_bet.odds - back_bet.remaining_amount
-  case amount >= lay_bet.remaining_amount do
-    true -> lay_bet.remaining_amount
-    _-> amount
+  case back_bet.remaining_stake * back_bet.odds - back_bet.remaining_stake >=
+      lay_bet.remaining_stake do
+    true -> lay_bet.remaining_stake
+    false-> back_bet.remaining_stake
   end
 end
 
 defp update_bet_stakes(back_bet, lay_bet, matched_amount) do
 
-  # back_bet = change(back_bet, remaining_amount: back_bet.remaining_amount - matched_amount)
-  # lay_bet = %{lay_bet | remaining_amount: lay_bet.remaining_amount - matched_amount}
+  b_changeset =
+    BetUnfair.Schemas.Bet.changeset(back_bet, %{remaining_stake: back_bet.remaining_stake - matched_amount,
+    matched_bets: [back_bet.matched_bets | lay_bet]})
+  l_changeset =
+    BetUnfair.Schemas.Bet.changeset(lay_bet, %{remaining_stake: lay_bet.remaining_stake - matched_amount,
+    matched_bets: [lay_bet.matched_bets | back_bet]})
 
-  # BetUnfair.Repo.update(back_bet)
-  # BetUnfair.Repo.update(lay_bet)
+    BetUnfair.Repo.update(b_changeset)
+    BetUnfair.Repo.update(l_changeset)
 
-end
-
-
+  end
 end
