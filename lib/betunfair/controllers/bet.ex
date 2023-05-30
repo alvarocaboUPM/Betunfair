@@ -20,15 +20,18 @@ defmodule BetUnfair.Controllers.Bet do
         # check if market exists
         case BetUnfair.Controllers.Market.market_get(market_id) do
           {:ok, _} ->
-
+            IO.puts("___________________________")
+            IO.inspect(user_data)
             # check user balance, if enough, reduce it
             {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_data)
-
+            IO.puts("___________________________")
+            IO.puts(balance)
               if balance >= stake do
                 # can bet
 
                 # substract money from user
-                new_balance = balance - stake
+                new_balance = balance - (stake/1)
+                IO.puts(new_balance)
                 changeset =
                   BetUnfair.Schemas.User.changeset(
                     user_id,
@@ -39,9 +42,12 @@ defmodule BetUnfair.Controllers.Bet do
                     }
                   )
 
+
                 case BetUnfair.Repo.update(changeset) do
                   {:ok, _} ->
-
+                    {_, b} = BetUnfair.Controllers.User.user_get_balance(user_id)
+                    IO.puts("+++++++++++++++++++")
+                    IO.puts(b)
                     # create bet
                     changeset1 = BetUnfair.Schemas.Bet.changeset(
                       %BetUnfair.Schemas.Bet{},
