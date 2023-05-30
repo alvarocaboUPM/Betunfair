@@ -1,5 +1,4 @@
 defmodule BetUnfair.Controllers.Bet do
-  import Ecto.Query
 
   @type bet_id() :: String.t()
   @doc """
@@ -30,7 +29,7 @@ defmodule BetUnfair.Controllers.Bet do
                 new_balance = balance - (stake/1)
                 changeset =
                   BetUnfair.Schemas.User.changeset(
-                    user_data, #Esto lo arregla
+                    user_data,
                     %{
                       wallet_balance: new_balance
                     }
