@@ -193,10 +193,10 @@ Matches the pending back and lay bets on the specified market.
 """
 @spec market_match(String.t()) :: :ok | {:error, String.t()}
 def market_match(id) do
-  fetch_bets(id) |>
-  match_bets()
 
-  :ok
+  {back_bets, lay_bets} = fetch_bets(id)
+
+  match_bets(back_bets, lay_bets)
 end
 
 defp fetch_bets(id) do
@@ -217,40 +217,39 @@ defp fetch_bets(id) do
   {back_bets, lay_bets}
 end
 
-#Convertir en funcional
-defp match_bets({back_bets, lay_bets}) do
-  Enum.each(back_bets, fn back_bet ->
+defp match_bets([], _), do: :ok
+
+defp match_bets([back_bet|t], lay_bets) do
+
     Enum.each(lay_bets, fn lay_bet ->
       if back_bet.odds <= lay_bet.odds do
         matched_amount = calculate_matched_amount(back_bet, lay_bet)
 
         update_bet_stakes(back_bet, lay_bet, matched_amount)
 
-        record_matched_bets(back_bet, lay_bet, matched_amount)
       end
     end)
-  end)
+
+    match_bets(t, lay_bets)
 end
 
 defp calculate_matched_amount(back_bet, lay_bet) do
-  if back_bet.remaining_amount * back_bet.odds - back_bet.remaining_amount >= lay_bet.remaining_amount do
-    lay_bet.remaining_amount
-  else
-    back_bet.remaining_amount * back_bet.odds - back_bet.remaining_amount
+  amount = back_bet.remaining_amount * back_bet.odds - back_bet.remaining_amount
+  case amount >= lay_bet.remaining_amount do
+    true -> lay_bet.remaining_amount
+    _-> amount
   end
 end
 
 defp update_bet_stakes(back_bet, lay_bet, matched_amount) do
-  back_bet = %{back_bet | remaining_amount: back_bet.remaining_amount - matched_amount}
-  lay_bet = %{lay_bet | remaining_amount: lay_bet.remaining_amount - matched_amount}
 
-  BetUnfair.Repo.update_all([back_bet, lay_bet])
+  # back_bet = change(back_bet, remaining_amount: back_bet.remaining_amount - matched_amount)
+  # lay_bet = %{lay_bet | remaining_amount: lay_bet.remaining_amount - matched_amount}
+
+  # BetUnfair.Repo.update(back_bet)
+  # BetUnfair.Repo.update(lay_bet)
+
 end
-
-defp record_matched_bets(back_bet, lay_bet, matched_amount) do
-  # Code to record matched bets, odds, and matched amounts
-end
-
 
 
 end
