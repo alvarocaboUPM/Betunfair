@@ -42,4 +42,4 @@ You can use the scrip `autobuildDB` to rebuild the databases on migration update
 
 - [Ecto start-up](https://hexdocs.pm/ecto/getting-started.html#adding-ecto-to-an-application)
 - [Ecto-SQL](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.html)
-  
+- [Betfair Exchange Español](https://www.youtube.com/watch?v=OuwNoftd2ow)
