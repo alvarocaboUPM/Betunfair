@@ -27,7 +27,6 @@ defmodule BetUnfair.Controllers.Market do
     end
   end
 
-
   def market_get(market) do
     case BetUnfair.Repo.get_by(BetUnfair.Schemas.Market, market_name: market.market_name) do
       nil ->

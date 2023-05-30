@@ -57,24 +57,23 @@ defmodule BetUnfair.Schemas.Bet do
     def equal?(value1, value2), do: value1 == value2
   end
 
-
   @primary_key {:bet_id, :binary_id, autogenerate: true}
 
   schema "bet" do
     field(:username, :string)
-    field(:market_id, :integer)
-    field(:bet_type, Ecto.Enum, values: [:lay, :back])
-    field(:odds, :integer)
+    field(:market_name, :string)
     field(:original_stake, :integer)
     field(:remaining_stake, :integer)
+    field(:odds, :integer)
+    field(:bet_type, Ecto.Enum, values: [:lay, :back])
     field(:matched_bets, {:array, :map})
     field(:status, BetUnfair.Schemas.Bet.Status, default: :active)
-    timestamps( inserted_at: :inserted_at, updated_at: :updated_at)
+    timestamps(inserted_at: :inserted_at, updated_at: :updated_at)
   end
 
   def changeset(bet, params \\ %{}) do
     bet
-    |> cast(params, [:bet_id, :username, :market_id, :amount, :remaining_amount, :odds, :bet_type, :is_matched])
-    |> validate_required([:username, :market_id])
+    |> cast(params, [:bet_id, :username, :market_name, :original_stake, :remaining_stake, :odds, :bet_type, :matched_bets, :status])
+    |> validate_required([:username, :market_name])
   end
 end

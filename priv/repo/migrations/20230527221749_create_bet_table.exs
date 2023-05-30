@@ -1,7 +1,7 @@
 defmodule BetUnfair.Repo.Migrations.CreateBetsTable do
   use Ecto.Migration
 
-  def change do
+    def change do
     create table(:bet, primary_key: false) do
       add :bet_id, :binary_id, primary_key: true
       add :bet_type, :string
