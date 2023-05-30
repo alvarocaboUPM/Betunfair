@@ -23,6 +23,18 @@ defmodule BetUnfair.Repo.Migrations.CreateBetsTable do
 
     create index(:matched_bets, [:bet_id])
     create index(:matched_bets, [:matched_bet_id])
+
+    create unique_index(
+    :matched_bets,
+    [:bet_id, :matched_bet_id],
+    name: :relationships_bet_id_matched_bet_id_index
+  )
+
+  create unique_index(
+    :matched_bets,
+    [:matched_bet_id, :bet_id],
+    name: :relationships_matched_bet_id_bet_id_index
+  )
   end
 
 end

@@ -1,6 +1,8 @@
 defmodule BetUnfair.Controllers.Market do
   import Ecto.Query
 
+  @type market_id() :: String.t()
+
   @doc """
   Creates a new market with the given name and description.
 
@@ -22,13 +24,28 @@ defmodule BetUnfair.Controllers.Market do
       )
 
     case BetUnfair.Repo.insert(changeset) do
-      {:ok, user} -> {:ok, user}
+      {:ok, market} -> {:ok, market.market_id}
       {:error, changeset} -> {:error, changeset}
     end
   end
 
-  def market_get(market) do
-    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Market, market_name: market.market_name) do
+  @doc """
+  Fetches a market from its ID
+
+  ## Examples
+
+      {:ok, m1} = BetUnfair.market_create(:rmw, "Real Madrid wins")
+
+  """
+  @spec market_get(id :: market_id()) ::
+          {:ok,
+           %{
+             name: string(),
+             description: string(),
+             status: :active | :frozen | :cancelled | {:settled, result :: bool()}
+           }}
+  def market_get(id) do
+    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Market, market_id: id) do
       nil ->
         {:error, "Market not found"}
 
@@ -83,15 +100,8 @@ defmodule BetUnfair.Controllers.Market do
       :ok = BetUnfair.market_cancel(m1)
 
   """
-  @spec market_cancel(BetUnfair.Schemas.Market) :: :ok | {:error, String.t()}
-  def market_cancel(market) when is_map(market) do
-    change = BetUnfair.Schemas.Market.changeset(market, %{status: :cancelled})
-
-    case BetUnfair.Repo.update(change) do
-      {:ok, m} -> {:ok, m}
-      {:error, changeset} -> {:error, "Failed to update market: #{inspect(changeset.errors)}"}
-    end
-  end
+  @spec market_cancel(id :: market_id()) :: :ok | {:error, String.t()}
+  def market_cancel(id), do: market_set_status(id, :cancelled)
 
   @doc """
   Freezes the specified market.
@@ -101,156 +111,194 @@ defmodule BetUnfair.Controllers.Market do
       :ok = BetUnfair.market_freeze(m1)
 
   """
-  @spec market_freeze(BetUnfair.Schemas.Market) :: :ok | {:error, String.t()}
-  def market_freeze(market) when is_map(market) do
-    change = BetUnfair.Schemas.Market.changeset(market, %{status: :frozen})
-
-    case BetUnfair.Repo.update(change) do
-      {:ok, _} -> :ok
-      {:error, changeset} -> {:error, "Failed to update market: #{inspect(changeset.errors)}"}
-    end
-  end
+  @spec market_freeze(id :: market_id()) :: :ok | {:error, String.t()}
+  def market_freeze(id), do: market_set_status(id, :frozen)
 
   @doc """
-  Sets the result of the specified market.
+  Sets the result of the specified  id.
 
   ## Examples
 
-      :ok = BetUnfair.market_settle(m1, "Win")
+      :ok = BetUnfair.market_settle(m1)
 
   """
   @spec market_settle(BetUnfair.Schemas.Market, boolean()) :: :ok | {:error, String.t()}
-  def market_settle(market, result) when is_boolean(result) do
-    changeset = BetUnfair.Schemas.Market.changeset(market, %{status: {:settled, result}})
+  def market_settle(id, result) when is_boolean(result),
+    do: market_set_status(id, {:settled, result})
 
-    case BetUnfair.Repo.update(changeset) do
-      {:ok, m} -> {:ok, m}
-      {:error, changeset} -> {:error, "Failed to update market: #{inspect(changeset.errors)}"}
+  defp market_set_status(id, option) do
+    case market_get(id) do
+      {:ok, market} ->
+        change = BetUnfair.Schemas.Market.changeset(market, %{status: option})
+
+        case BetUnfair.Repo.update(change) do
+          {:ok, m} -> {:ok, m}
+          {:error, changeset} -> {:error, "Failed to update  id: #{inspect(changeset.errors)}"}
+        end
+
+      {:error, err} ->
+        {:error, err}
     end
   end
 
- @doc """
-Retrieves a list of bets placed on the specified market.
-
-## Examples
-
-    bets = BetUnfair.market_bets(m1.market_name)
-    IO.inspect(bets)
-
-"""
-@spec market_bets(String.t()) :: list()
-def market_bets(id) do
-  from(b in BetUnfair.Schemas.Bet, where: b.event_id == ^id, select: b)
-  |> BetUnfair.Repo.all()
-end
-
-
   @doc """
-Retrieves a list of pending back bets on the specified market.
-
-## Examples
-
-    pending_backs = BetUnfair.market_pending_backs(m1.market_name)
-    IO.inspect(pending_backs)
-
-"""
-@spec market_pending_backs(String.t()) :: list()
-def market_pending_backs(id) do
-  from(b in BetUnfair.Schemas.Bet,
-    where: b.market_name == ^id and b.bet_type == "bet_back",
-    select: b
-  )
-  |> BetUnfair.Repo.all()
-end
-
-
-  @doc """
-  Retrieves a list of pending lay bets on the specified market.
+  Retrieves a list of bets placed on the specified  id.
 
   ## Examples
 
-      pending_lays = BetUnfair.market_pending_lays(m1.market_name)
-      IO.inspect(pending_lays)
+      bets = BetUnfair.market_bets(m1.market_name)
+      IO.inspect(bets)
 
   """
-  @spec market_pending_lays(String.t()) :: list()
-  def market_pending_lays(id) do
-    from(b in BetUnfair.Schemas.Bet,
-    where: b.market_name == ^id and b.bet_type == "bet_lay",
-    select: b
-  )
-  |> BetUnfair.Repo.all()
+  @spec market_bets(id :: market_id()) :: list() | {:error, String.t()}
+  def market_bets(id) do
+    case market_get(id) do
+      {:ok, market} ->
+        from(b in BetUnfair.Schemas.Bet, where: b.market_name == ^market.market_name, select: b)
+        |> BetUnfair.Repo.all()
+
+      {:error, err} ->
+        {:error, err}
+    end
   end
 
-@doc """
-Matches the pending back and lay bets on the specified market.
+  @doc """
+  Retrieves a list of pending back bets on the specified  id.
 
-## Examples
+  ## Examples
 
-  :ok = BetUnfair.market_match(m1.market_name)
 
-"""
-@spec market_match(String.t()) :: :ok | {:error, String.t()}
-def market_match(id) do
+  """
+  @spec market_pending_backs(id :: market_id()) :: list() | {:error, String.t()}
+  def market_pending_backs(id), do: market_pending_bets(id, :back, "desc")
 
-  {back_bets, lay_bets} = fetch_bets(id)
+  @doc """
+  Retrieves a list of pending lay bets on the specified  id.
 
-  match_bets(back_bets, lay_bets)
-end
+  ## Examples
 
-defp fetch_bets(id) do
-  back_bets =
-    from(b in BetUnfair.Schemas.Bet,
-      where: b.market_name == ^id and b.bet_type == :back and b.status == :active,
-      order_by: [asc: b.odds, desc: b.inserted_at]
-    )
-    |> BetUnfair.Repo.all()
+  """
+  @spec market_pending_lays(id :: market_id()) :: list() | {:error, String.t()}
+  def market_pending_lays(id), do: market_pending_bets(id, :lay, "asc")
 
-  lay_bets =
-    from(b in BetUnfair.Schemas.Bet,
-      where: b.market_name == ^id and b.bet_type == :lay and b.status == :active,
-      order_by: [desc: b.odds, desc: b.inserted_at]
-    )
-    |> BetUnfair.Repo.all()
+  defp market_pending_bets(id, option, order) do
+    case market_get(id) do
+      {:ok, market} ->
+        from(b in BetUnfair.Schemas.Bet,
+          where:
+            b.market_name == ^market.market_name and b.bet_type == ^option and b.status == :active,
+          order_by: ^generate_order_by(order)
+        )
+        |> BetUnfair.Repo.all()
+        |> list_to_tuple([])
 
-  {back_bets, lay_bets}
-end
+      {:error, err} ->
+        {:error, err}
+    end
+  end
 
-defp match_bets([], _), do: :ok
+  defp list_to_tuple([], res), do: {:ok, res}
 
-defp match_bets([back_bet|t], lay_bets) do
+  defp list_to_tuple([h | t], res) do
+    list_to_tuple(t, [{h.odds, h.bet_id} | res])
+  end
 
-    Enum.each(lay_bets, fn lay_bet ->
-      if back_bet.odds <= lay_bet.odds do
-        matched_amount = calculate_matched_amount(back_bet, lay_bet)
+  defp generate_order_by("asc"), do: [asc: :odds]
+  defp generate_order_by("desc"), do: [desc: :odds]
+  defp generate_order_by(_), do: []
 
-        update_bet_stakes(back_bet, lay_bet, matched_amount)
+  @doc """
+  Matches the pending back and lay bets on the specified  id.
 
+  ## Examples
+
+    :ok = BetUnfair.market_match(m1.market_name)
+
+  """
+  @spec market_match(id :: market_id()) :: :ok | {:error, String.t()}
+  def market_match(id) do
+    {_, back_bets} = market_pending_backs(id)
+    {_, lay_bets} = market_pending_lays(id)
+
+    match_bets(back_bets, lay_bets)
+  end
+
+  defp match_bets([], _), do: :ok
+
+  defp match_bets([bb_tuple | t], lb_tuples) do
+    bb_tuples = [bb_tuple | t]
+    Enum.each(lb_tuples, fn lb_tuple ->
+      # Find potential match: back_odds <= lay_odds
+      if elem(bb_tuple, 0) <= elem(lb_tuple, 0) do
+        # Get bet objets
+        {_, back_bet} = BetUnfair.Controllers.Bet.bet_get(elem(bb_tuple, 1))
+        {_, lay_bet} = BetUnfair.Controllers.Bet.bet_get(elem(lb_tuple, 1))
+        # Find matching amount
+          {b,l}= calculate_matched_amount(back_bet, lay_bet)
+          # Update the DB
+          |> update_bet_stakes(back_bet, lay_bet)
+          # Update the queues
+          |> new_records(bb_tuples, lb_tuples)
+          match_bets(b,l)
       end
     end)
 
-    match_bets(t, lay_bets)
-end
-
-defp calculate_matched_amount(back_bet, lay_bet) do
-  case back_bet.remaining_stake * back_bet.odds - back_bet.remaining_stake >=
-      lay_bet.remaining_stake do
-    true -> lay_bet.remaining_stake
-    false-> back_bet.remaining_stake
+    # Remove lay_bet from queue
+    match_bets(t, lb_tuples)
   end
-end
 
-defp update_bet_stakes(back_bet, lay_bet, matched_amount) do
+  defp calculate_matched_amount(back_bet, lay_bet) do
+    amount =
+      back_bet.remaining_stake *
+        (back_bet.odds / 100)-
+        back_bet.remaining_stake
 
-  b_changeset =
-    BetUnfair.Schemas.Bet.changeset(back_bet, %{remaining_stake: back_bet.remaining_stake - matched_amount,
-    matched_bets: [back_bet.matched_bets | lay_bet]})
-  l_changeset =
-    BetUnfair.Schemas.Bet.changeset(lay_bet, %{remaining_stake: lay_bet.remaining_stake - matched_amount,
-    matched_bets: [lay_bet.matched_bets | back_bet]})
+    IO.puts(amount)
+    IO.puts(">=")
+    IO.puts(lay_bet.remaining_stake)
 
-    BetUnfair.Repo.update(b_changeset)
-    BetUnfair.Repo.update(l_changeset)
+    case amount >= lay_bet.remaining_stake do
+      true -> lay_bet.remaining_stake
+      false -> back_bet.remaining_stake
+    end
+  end
 
+  defp update_bet_stakes(matched_amount, back_bet, lay_bet) do
+    b_changeset =
+      BetUnfair.Schemas.Bet.changeset(back_bet, %{
+        remaining_stake: back_bet.remaining_stake - matched_amount,
+        matched_bets: [back_bet.matched_bets | lay_bet]
+      })
+
+    l_changeset =
+      BetUnfair.Schemas.Bet.changeset(lay_bet, %{
+        remaining_stake: lay_bet.remaining_stake - matched_amount,
+        matched_bets: [lay_bet.matched_bets | back_bet]
+      })
+
+    {_, c1} = BetUnfair.Repo.update(b_changeset)
+    {_, c2} = BetUnfair.Repo.update(l_changeset)
+
+    {c1, c2}
+  end
+
+  defp new_records({new_bb, new_lb}, [h1 | t1], [h2 | t2]) do
+    # 1. LB -> If it's matched, remove it
+    lb_tuples =
+      if new_lb.remaining_stake == 0 do
+        t2
+      else
+        [h2 | t2]
+      end
+
+    # 2. BB -> If it's matched, remove it
+    bb_tuples =
+      if new_bb.remaining_stake == 0 do
+        t1
+      else
+        [h1 | t1]
+      end
+
+    {bb_tuples, lb_tuples}
   end
 end

@@ -109,6 +109,14 @@ defmodule BetUnfair do
     GenServer.call(__MODULE__, {:market_bets, id})
   end
 
+  def market_pending_lays(id) do
+    GenServer.call(__MODULE__, {:market_pending_lays, id})
+  end
+
+  def market_pending_backs(id) do
+    GenServer.call(__MODULE__, {:market_pending_backs, id})
+  end
+
   def market_match(id) do
     GenServer.call(__MODULE__, {:market_match, id})
   end
@@ -272,6 +280,15 @@ defmodule BetUnfair do
   def handle_call({:market_get, id}, _from, state) do
     # Forward the call to the appropriate controller function
     result = BetUnfair.Controllers.Market.market_get(id)
+
+    {:reply, result, state}
+  end
+
+
+  @impl true
+  def handle_call({:market_pending_lays, id}, _from, state) do
+    # Forward the call to the appropriate controller function
+    result = BetUnfair.Controllers.Market.market_pending_lays(id)
 
     {:reply, result, state}
   end
