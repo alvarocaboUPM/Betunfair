@@ -57,10 +57,10 @@ defmodule BetUnfair.Schemas.Market do
     def equal?(value1, value2), do: value1 == value2
   end
 
-  @primary_key {:market_name, :string, autogenerate: false}
-
+  @primary_key {:market_id, :binary_id, autogenerate: true}
 
   schema "market" do
+    field(:market_name, :string)
     field(:market_description, :string)
     field(:status, BetUnfair.Schemas.Market.Status, default: :active)
     timestamps(type: :utc_datetime, inserted_at: :inserted_at, updated_at: :updated_at)
