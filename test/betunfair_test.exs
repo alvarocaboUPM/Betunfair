@@ -37,6 +37,7 @@ defmodule BetunfairTest do
 
     test "user_persist" do
     assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
+    assert is_error(BetUnfair.user_create("u1","Francisco Gonzalez"))
     assert is_ok(BetUnfair.user_deposit(u1,2000))
     assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
