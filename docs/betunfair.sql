@@ -143,7 +143,7 @@ CREATE TABLE `user` (
   `username` varchar(255) NOT NULL,
   `full_name` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `wallet_balance` double DEFAULT NULL,
+  `balance` double DEFAULT NULL,
   `inserted_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`username`)

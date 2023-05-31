@@ -1,4 +1,8 @@
 defmodule BetUnfair.Controllers.User do
+  import Ecto.Query
+
+  @type user_id() :: String.t()
+
   @doc """
   Creates a new user with the given username and full name.
 
@@ -7,7 +11,7 @@ defmodule BetUnfair.Controllers.User do
       assert {:ok, user} = BetUnfair.user_create("u1", "Francisco Gonzalez")
 
   """
-  @spec user_create(String.t(), String.t()) :: {:ok, map()}
+  @spec user_create(String.t(), String.t()) :: {:ok, user_id()}
   def user_create(username, full_name) do
     changeset =
       BetUnfair.Schemas.User.changeset(
@@ -16,13 +20,12 @@ defmodule BetUnfair.Controllers.User do
           username: username,
           full_name: full_name,
           password: nil,
-          wallet_balance: 0.0
+          balance: 0
         }
       )
 
-
     case BetUnfair.Repo.insert(changeset) do
-      {:ok, user} -> {:ok, user}
+      {:ok, user} -> {:ok, user.user_id}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -35,17 +38,36 @@ defmodule BetUnfair.Controllers.User do
       assert :ok = BetUnfair.user_deposit(user, 2000)
 
   """
-  @spec user_deposit(map(), number()) :: :ok
-  def user_deposit(user, amount) when is_map(user) and is_number(amount) do
+  @spec user_deposit(user_id(), number()) :: :ok | {:error, String.t()}
+  def user_deposit(id, amount) when is_number(amount) do
+    balance_operation(id, amount, :deposit)
+  end
+
+  @doc """
+  Removes the given amount from the user's account.
+
+  ## Examples
+
+      assert :ok = BetUnfair.user_withdraw(user, 2000)
+
+  """
+  @spec user_withdraw(user_id(), number()) :: :ok | {:error, String.t()}
+  def user_withdraw(id, amount) when is_number(amount) do
+    balance_operation(id, amount, :withdraw)
+  end
+
+  defp balance_operation(id, amount, operation) do
     # Validate the user and amount
-    case user_get(user) do
+    case user_get(id) do
       {:ok, user_data} ->
         if amount > 0 do
-          new_balance = user_data.wallet_balance + amount
-          changeset = BetUnfair.Schemas.User.changeset(user_data, %{wallet_balance: new_balance})
-          case BetUnfair.Repo.update(changeset) do
-            {:ok, user} -> {:ok, user}
-            {:error, changeset} -> {:error, changeset}
+          case n_balance(amount, user_data.balance, operation) do
+            {:ok, new_balance}-> changeset = BetUnfair.Schemas.User.changeset(user_data, %{balance: new_balance})
+              case BetUnfair.Repo.update(changeset) do
+                {:ok, user} -> {:ok, user}
+                {:error, changeset} -> {:error, changeset}
+              end
+            {:error, err}-> {:error, err}
           end
         else
           {:error, "Invalid amount"}
@@ -56,39 +78,8 @@ defmodule BetUnfair.Controllers.User do
     end
   end
 
-  def user_deposit(_user, _amount), do: {:error, "Invalid arguments"}
-
-  @doc """
-  Removes the given amount from the user's account.
-
-  ## Examples
-
-      assert :ok = BetUnfair.user_withdraw(user, 2000)
-
-  """
-  @spec user_withdraw(map(), number()) :: :ok | {:error, String.t()}
-  def user_withdraw(user, amount) when is_map(user) and is_number(amount) do
-    case user_get_balance(user) do
-      {:ok, balance} ->
-        case validate_withdrawal(balance, amount) do
-          :ok ->
-            new_balance = balance - (amount / 1)
-            changeset = BetUnfair.Schemas.User.changeset(user, %{wallet_balance: new_balance})
-          case BetUnfair.Repo.update(changeset) do
-            {:ok, user} -> {:ok, user}
-            {:error, changeset} -> {:error, changeset}
-          end
-
-          {:error, error} ->
-            {:error, error}
-        end
-
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  def user_withdraw(_user, _amount), do: {:error, "Invalid arguments"}
+  defp n_balance(amount, balance, :deposit), do: {:ok, balance + amount}
+  defp n_balance(amount, balance, :withdraw), do: validate_withdrawal(balance, amount)
 
   defp validate_withdrawal(balance, amount) do
     cond do
@@ -99,7 +90,7 @@ defmodule BetUnfair.Controllers.User do
         {:error, "Insufficient balance"}
 
       true ->
-        :ok
+        {:ok, balance - amount}
     end
   end
 
@@ -113,17 +104,18 @@ defmodule BetUnfair.Controllers.User do
     %{username: "u1", full_name: "Francisco F", password: nil, balance: 2000}
 
   """
-  @spec user_get(map()) :: {:ok, map()}
-  def user_get(user) do
-    case BetUnfair.Repo.get_by(BetUnfair.Schemas.User, username: user.username) do
-      nil ->
-        {:error, "User not found"}
+  @spec user_get(user_id()) :: {:ok, map()}
+  def user_get(id) when is_number(id) do
+        case BetUnfair.Repo.get_by(BetUnfair.Schemas.User, user_id: id) do
+          nil ->
+            {:error, "User not found"}
 
-      user_data ->
-        {:ok, user_data}
+          user_data ->
+            {:ok, user_data}
     end
   end
 
+  def user_get(_other), do: {:error, "Invalid user ID format"}
 
   @doc """
   Returns an enumerable containing all bets of the user
@@ -131,16 +123,23 @@ defmodule BetUnfair.Controllers.User do
   ## Examples
 
   """
-  @spec user_bets(BetUnfair.Schemas.User):: Enumerable.t(BetUnfair.Schemas.Bet)
-  def user_bets(user) do
-    {:ok, user}
+  @spec user_bets(user_id()):: Enumerable.t(BetUnfair.Schemas.Bet)
+  def user_bets(id) do
+    case user_bets(id) do
+      {:ok, user} ->
+        from(b in BetUnfair.Schemas.Bet, where: b.username == ^user.username, select: b)
+        |> BetUnfair.Repo.all()
+
+      {:error, err} ->
+        {:error, err}
+    end
   end
 
-  @spec user_get_balance(BetUnfair.Schemas.User) :: float()
-  def user_get_balance(user) do
-    case user_get(user) do
-    {:ok, %BetUnfair.Schemas.User{ wallet_balance: wallet_balance}} ->
-        {:ok, wallet_balance}
+  @spec user_get_balance(user_id()) :: integer()
+  def user_get_balance(id) do
+    case user_get(id) do
+    {:ok, %BetUnfair.Schemas.User{ balance: balance}} ->
+        {:ok, balance}
     _ ->
         {:error, "User not found"}
     end

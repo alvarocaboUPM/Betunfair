@@ -18,7 +18,7 @@ defmodule BetunfairTest do
     assert is_error(BetUnfair.user_withdraw(u1,-1))
     assert is_error(BetUnfair.user_withdraw(u1, 0))
     assert is_error(BetUnfair.user_withdraw(u1, 50000))
-    assert {:ok,1000.0} = BetUnfair.user_get_balance(u1)
+    assert {:ok,1000} = BetUnfair.user_get_balance(u1)
     case BetUnfair.user_get(u1) do
       {:ok, fetched_user} ->
         # Assert that the fetched user matches the expected user attributes
@@ -27,7 +27,7 @@ defmodule BetunfairTest do
                  full_name: "Francisco Gonzalez",
                  password: nil,
                  username: "u1",
-                 wallet_balance: 1000.0
+                 balance: 1000
                } = fetched_user
 
       {:error, _} ->
@@ -39,7 +39,7 @@ defmodule BetunfairTest do
     assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
     assert is_error(BetUnfair.user_create("u1","Francisco Gonzalez"))
     assert is_ok(BetUnfair.user_deposit(u1,2000))
-    assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+    assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
     assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
     assert :ok = BetUnfair.bet_cancel(b)
@@ -48,7 +48,7 @@ defmodule BetunfairTest do
     # FIX needed (Probablemente no hagan falta por el pool de testing)
     # assert is_ok(BetUnfair.stop(BetUnfair))
     # assert  {:ok,_} = BetUnfair.start_link(BetUnfair)
-    # assert {:ok, 1000.0} = BetUnfair.user_get_balance(u1)
+    # assert {:ok, 1000} = BetUnfair.user_get_balance(u1)
     assert {:ok,markets} = BetUnfair.market_list()
     assert 1 = length(markets)
     assert {:ok,markets} = BetUnfair.market_list_active()
@@ -58,7 +58,7 @@ defmodule BetunfairTest do
   test "user_bet1" do
     assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
     assert is_ok(BetUnfair.user_deposit(u1,2000))
-    assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+    assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
     assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
     assert {:ok,%{  bet_type: :back, remaining_stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
@@ -71,19 +71,18 @@ defmodule BetunfairTest do
    test "match_bets1" do
     assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
     assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
-    assert {:ok,0.0} = BetUnfair.user_get_balance(u1)
+    assert {:ok,0} = BetUnfair.user_get_balance(u1)
     assert is_ok(BetUnfair.user_deposit(u1,2000))
     assert is_ok(BetUnfair.user_deposit(u2,2000))
-    assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+    assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
     assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,1000,150)
     assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,1000,153)
-    assert {:ok,0.0} = BetUnfair.user_get_balance(u1)
+    assert {:ok,0} = BetUnfair.user_get_balance(u1)
     assert true = (bb1 != bb2)
     assert {:ok,bl1} = BetUnfair.bet_lay(u2,m1,500,140)
-    IO.inspect(bl1)
     assert {:ok,bl2} = BetUnfair.bet_lay(u2,m1,500,150)
-    assert {:ok,1000.0} = BetUnfair.user_get_balance(u2)
+    assert {:ok,1000} = BetUnfair.user_get_balance(u2)
     assert {:ok, backs} = BetUnfair.market_pending_backs(m1)
     assert [^bb1,^bb2] = Enum.to_list(backs) |>
                          Enum.map(fn (e) -> elem(e,1) end)
@@ -100,7 +99,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
   #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,1000,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,1000,153)
@@ -119,7 +118,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
   #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,1000,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,1000,153)
@@ -140,7 +139,7 @@ defmodule BetunfairTest do
     assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
     assert is_ok(BetUnfair.user_deposit(u1,2000))
     assert is_ok(BetUnfair.user_deposit(u2,2000))
-    assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+    assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,1000,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,1000,153)
@@ -151,8 +150,8 @@ defmodule BetunfairTest do
   #  assert {:ok,1800} = BetUnfair.user_get_balance(u2)
   #   assert is_ok(BetUnfair.market_match(m1))
     assert is_ok(BetUnfair.market_cancel(m1))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
-  #   assert {:ok,%{balance: 2000.0}} = BetUnfair.user_get(u2)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u2)
    end
 
   test "match_bets5" do
@@ -160,7 +159,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,1000,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,1000,153)
@@ -180,7 +179,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
   #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,1000,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,1000,153)
@@ -200,7 +199,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,1000,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,1000,153)
@@ -222,7 +221,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
   #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,200,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,200,153)
@@ -242,7 +241,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
   #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,200,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,200,153)
@@ -262,7 +261,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
   #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,800,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,800,153)
@@ -282,7 +281,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
   #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,200,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,200,150)
@@ -302,7 +301,7 @@ defmodule BetunfairTest do
   #   assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
   #   assert is_ok(BetUnfair.user_deposit(u1,2000))
   #   assert is_ok(BetUnfair.user_deposit(u2,2000))
-  #   assert {:ok, 2000.0} = BetUnfair.user_get_balance(u1)
+  #   assert {:ok, 2000} = BetUnfair.user_get_balance(u1)
   #   assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
   #   assert {:ok,bb1} = BetUnfair.bet_back(u1,m1,1000,150)
   #   assert {:ok,bb2} = BetUnfair.bet_back(u1,m1,1000,153)

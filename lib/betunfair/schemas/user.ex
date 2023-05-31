@@ -1,4 +1,4 @@
-defmodule BetUnfair.Schemas.User do
+defmodule Betunfair.Schemas.User do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -8,13 +8,13 @@ defmodule BetUnfair.Schemas.User do
     field :username, :string
     field :full_name, :string
     field :password, :string
-    field :wallet_balance, :float
+    field :balance, :integer
     timestamps(type: :utc_datetime, inserted_at: :inserted_at, updated_at: :updated_at)
   end
 
   def changeset(user, params \\ %{}) do
     user
-    |> cast(params, [:username, :full_name, :password, :wallet_balance])
+    |> cast(params, [:username, :full_name, :password, :balance])
     |> validate_required([:username, :full_name])
     |> unique_constraint(:username, name: :user_username_index)
   end

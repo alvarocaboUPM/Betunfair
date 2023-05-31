@@ -77,7 +77,6 @@ defmodule BetUnfair.Controllers.Market do
   ## Examples
 
       active_markets = BetUnfair.market_list_active()
-      IO.inspect(active_markets)
 
   """
   @spec market_list_active() :: list()
@@ -147,7 +146,6 @@ defmodule BetUnfair.Controllers.Market do
   ## Examples
 
       bets = BetUnfair.market_bets(m1.market_name)
-      IO.inspect(bets)
 
   """
   @spec market_bets(id :: market_id()) :: list() | {:error, String.t()}
@@ -253,9 +251,6 @@ defmodule BetUnfair.Controllers.Market do
         (back_bet.odds / 100)-
         back_bet.remaining_stake
 
-    IO.puts(amount)
-    IO.puts(">=")
-    IO.puts(lay_bet.remaining_stake)
 
     case amount >= lay_bet.remaining_stake do
       true -> lay_bet.remaining_stake
