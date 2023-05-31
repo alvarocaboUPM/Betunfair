@@ -105,17 +105,23 @@ defmodule BetUnfair.Controllers.User do
 
   """
   @spec user_get(user_id()) :: {:ok, map()}
-  def user_get(id) when is_number(id) do
-        case BetUnfair.Repo.get_by(BetUnfair.Schemas.User, user_id: id) do
+  def user_get(id) when is_bitstring(id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, binary_id} ->
+        case BetUnfair.Repo.get_by(BetUnfair.Schemas.User, user_id: binary_id) do
           nil ->
             {:error, "User not found"}
 
           user_data ->
             {:ok, user_data}
+        end
+
+      :error ->
+        {:error, "Invalid user ID format"}
     end
   end
 
-  def user_get(_other), do: {:error, "Invalid user ID format"}
+
 
   @doc """
   Returns an enumerable containing all bets of the user

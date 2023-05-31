@@ -1,4 +1,4 @@
-defmodule Betunfair.Schemas.User do
+defmodule BetUnfair.Schemas.User do
   use Ecto.Schema
   import Ecto.Changeset
 
