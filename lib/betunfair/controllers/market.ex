@@ -246,15 +246,18 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   defp calculate_matched_amount(back_bet, lay_bet) do
+
     amount =
       back_bet.stake *
         (back_bet.odds / 100)-
         back_bet.stake
+    IO.puts(amount)
 
+    if amount >= lay_bet.stake do
+      lay_bet.stake
+    else
+      amount
 
-    case amount >= lay_bet.stake do
-      true -> lay_bet.stake
-      false -> back_bet.stake
     end
   end
 
