@@ -58,7 +58,7 @@ defmodule BetUnfair.Controllers.Bet do
 
                   # insert into database
                   case BetUnfair.Repo.insert(changeset1) do
-                    {:ok, bet} -> {:ok, bet.bet_id}
+                    {:ok, bet} -> {:ok, bet.id}
                     {:error, changeset1} -> {:error, changeset1}
                   end
 
@@ -135,7 +135,7 @@ defmodule BetUnfair.Controllers.Bet do
 
                   # insert into database
                   case BetUnfair.Repo.insert(changeset1) do
-                    {:ok, bet} -> {:ok, bet.bet_id}
+                    {:ok, bet} -> {:ok, bet.id}
                     {:error, changeset1} -> {:error, changeset1}
                   end
 
@@ -168,7 +168,7 @@ defmodule BetUnfair.Controllers.Bet do
     case BetUnfair.Controllers.Bet.bet_get(id) do
       {:ok, bet} ->
         # change status and remove unmatched stake
-        change = BetUnfair.Schemas.Bet.changeset(bet, %{status: :cancelled, remaining_stake: 0})
+        change = BetUnfair.Schemas.Bet.changeset(bet, %{status: :cancelled, stake: 0})
 
         case BetUnfair.Repo.update(change) do
           {:ok, _} -> :ok
@@ -197,7 +197,7 @@ defmodule BetUnfair.Controllers.Bet do
   """
   @spec bet_get(bet_id()) :: {:ok, bet_id()}
   def bet_get(id) do
-    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, bet_id: id) do
+    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, id: id) do
       nil ->
         {:error, "Bet not found"}
 

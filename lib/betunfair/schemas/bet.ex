@@ -60,7 +60,7 @@ defmodule BetUnfair.Schemas.Bet do
     def equal?(value1, value2), do: value1 == value2
   end
 
-  @primary_key {:bet_id, :binary_id, autogenerate: true}
+  @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "bet" do
     field(:username, :string)
@@ -72,7 +72,7 @@ defmodule BetUnfair.Schemas.Bet do
     many_to_many  :matched_bets,
                   Bet,
                   join_through: Matched_bets,
-                  join_keys: [bet_id: :bet_id, matched_bet_id: :matched_bet_id]
+                  join_keys: [bet_id: :id, matched_bet_id: :matched_id]
     field(:status, BetUnfair.Schemas.Bet.Status, default: :active)
     timestamps(inserted_at: :inserted_at, updated_at: :updated_at)
   end
