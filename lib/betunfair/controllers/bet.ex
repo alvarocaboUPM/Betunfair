@@ -48,7 +48,7 @@ defmodule BetUnfair.Controllers.Bet do
                       %{
                         username: user_data.username,
                         market_name: market.market_name,
-                        original_stake: stake,
+                        stake: stake,
                         remaining_stake: stake,
                         odds: odds,
                         bet_type: :back,
@@ -125,7 +125,7 @@ defmodule BetUnfair.Controllers.Bet do
                       %{
                         username: user_data.username,
                         market_name: market.market_name,
-                        original_stake: stake,
+                        stake: stake,
                         remaining_stake: stake,
                         odds: odds,
                         bet_type: :lay,
@@ -189,7 +189,7 @@ defmodule BetUnfair.Controllers.Bet do
                    market_id: market,
                    user_id: user,
                    odds: 1.5,
-                   original_stake: 20,
+                   stake: 20,
                    remaining_stake: 2,
                    matched_bets: [2, 3],
                    status: :active}} = BetUnfair.bet_get(bet)

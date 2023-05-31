@@ -6,7 +6,7 @@ defmodule BetUnfair.Repo.Migrations.CreateBetsTable do
       add :bet_id, :binary_id, primary_key: true
       add :bet_type, :string
       add :odds, :integer
-      add :original_stake, :integer
+      add :stake, :integer
       add :remaining_stake, :integer
       add :status, :string, default: "active"
       add :username, references(:user, column: :username, type: :string)
