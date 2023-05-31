@@ -72,7 +72,7 @@ defmodule BetUnfair.Schemas.Bet do
     many_to_many  :matched_bets,
                   Bet,
                   join_through: Matched_bets,
-                  join_keys: [bet_id: :id, matched_bet_id: :matched_id]
+                  join_keys: [id: :id, matched_bet_id: :matched_id]
     field(:status, BetUnfair.Schemas.Bet.Status, default: :active)
     timestamps(inserted_at: :inserted_at, updated_at: :updated_at)
   end
@@ -80,7 +80,7 @@ defmodule BetUnfair.Schemas.Bet do
 
   def changeset(bet, params \\ %{}) do
     bet
-    |> cast(params, [:bet_id, :username, :market_name, :stake, :remaining_stake, :odds, :bet_type, :status])
+    |> cast(params, [:id, :username, :market_name, :stake, :remaining_stake, :odds, :bet_type, :status])
     |> validate_required([:username, :market_name])
   end
 end
@@ -91,7 +91,7 @@ end
     @primary_key {:matched_bet_id, :binary_id, autogenerate: true}
 
     schema "matched_bets" do
-      field :bet_id, :binary_id
+      field :id, :binary_id
       field :matched_amount, :integer
       timestamps(inserted_at: :inserted_at, updated_at: :updated_at)
     end
