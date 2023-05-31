@@ -26,7 +26,7 @@ CREATE TABLE `bet` (
   `bet_id` binary(16) NOT NULL,
   `bet_type` varchar(255) DEFAULT NULL,
   `odds` int(11) DEFAULT NULL,
-  `original_stake` int(11) DEFAULT NULL,
+  `stake` int(11) DEFAULT NULL,
   `remaining_stake` int(11) DEFAULT NULL,
   `status` varchar(255) DEFAULT 'active',
   `username` varchar(255) DEFAULT NULL,

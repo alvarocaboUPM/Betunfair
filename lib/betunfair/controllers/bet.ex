@@ -48,7 +48,7 @@ defmodule BetUnfair.Controllers.Bet do
                       %{
                         username: user_data.username,
                         market_name: market.market_name,
-                        original_stake: stake,
+                        stake: stake,
                         remaining_stake: stake,
                         odds: odds,
                         bet_type: :back,
@@ -58,7 +58,7 @@ defmodule BetUnfair.Controllers.Bet do
 
                   # insert into database
                   case BetUnfair.Repo.insert(changeset1) do
-                    {:ok, bet} -> {:ok, bet.bet_id}
+                    {:ok, bet} -> {:ok, bet.id}
                     {:error, changeset1} -> {:error, changeset1}
                   end
 
@@ -125,7 +125,7 @@ defmodule BetUnfair.Controllers.Bet do
                       %{
                         username: user_data.username,
                         market_name: market.market_name,
-                        original_stake: stake,
+                        stake: stake,
                         remaining_stake: stake,
                         odds: odds,
                         bet_type: :lay,
@@ -135,7 +135,7 @@ defmodule BetUnfair.Controllers.Bet do
 
                   # insert into database
                   case BetUnfair.Repo.insert(changeset1) do
-                    {:ok, bet} -> {:ok, bet.bet_id}
+                    {:ok, bet} -> {:ok, bet.id}
                     {:error, changeset1} -> {:error, changeset1}
                   end
 
@@ -168,7 +168,7 @@ defmodule BetUnfair.Controllers.Bet do
     case BetUnfair.Controllers.Bet.bet_get(id) do
       {:ok, bet} ->
         # change status and remove unmatched stake
-        change = BetUnfair.Schemas.Bet.changeset(bet, %{status: :cancelled, remaining_stake: 0})
+        change = BetUnfair.Schemas.Bet.changeset(bet, %{status: :cancelled, stake: 0})
 
         case BetUnfair.Repo.update(change) do
           {:ok, _} -> :ok
@@ -189,7 +189,7 @@ defmodule BetUnfair.Controllers.Bet do
                    market_id: market,
                    user_id: user,
                    odds: 1.5,
-                   original_stake: 20,
+                   stake: 20,
                    remaining_stake: 2,
                    matched_bets: [2, 3],
                    status: :active}} = BetUnfair.bet_get(bet)
@@ -197,7 +197,7 @@ defmodule BetUnfair.Controllers.Bet do
   """
   @spec bet_get(bet_id()) :: {:ok, bet_id()}
   def bet_get(id) do
-    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, bet_id: id) do
+    case BetUnfair.Repo.get_by(BetUnfair.Schemas.Bet, id: id) do
       nil ->
         {:error, "Bet not found"}
 

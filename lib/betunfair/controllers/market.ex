@@ -198,7 +198,7 @@ defmodule BetUnfair.Controllers.Market do
   defp list_to_tuple([], res), do: {:ok, res}
 
   defp list_to_tuple([h | t], res) do
-    list_to_tuple(t, [{h.odds, h.bet_id} | res])
+    list_to_tuple(t, [{h.odds, h.id} | res])
   end
 
   defp generate_order_by("asc"), do: [asc: :odds]
@@ -247,27 +247,27 @@ defmodule BetUnfair.Controllers.Market do
 
   defp calculate_matched_amount(back_bet, lay_bet) do
     amount =
-      back_bet.remaining_stake *
+      back_bet.stake *
         (back_bet.odds / 100)-
-        back_bet.remaining_stake
+        back_bet.stake
 
 
-    case amount >= lay_bet.remaining_stake do
-      true -> lay_bet.remaining_stake
-      false -> back_bet.remaining_stake
+    case amount >= lay_bet.stake do
+      true -> lay_bet.stake
+      false -> back_bet.stake
     end
   end
 
   defp update_bet_stakes(matched_amount, back_bet, lay_bet) do
     b_changeset =
       BetUnfair.Schemas.Bet.changeset(back_bet, %{
-        remaining_stake: back_bet.remaining_stake - matched_amount,
+        stake: back_bet.stake - matched_amount,
         matched_bets: [back_bet.matched_bets | lay_bet]
       })
 
     l_changeset =
       BetUnfair.Schemas.Bet.changeset(lay_bet, %{
-        remaining_stake: lay_bet.remaining_stake - matched_amount,
+        stake: lay_bet.stake - matched_amount,
         matched_bets: [lay_bet.matched_bets | back_bet]
       })
 
@@ -280,7 +280,7 @@ defmodule BetUnfair.Controllers.Market do
   defp new_records({new_bb, new_lb}, [h1 | t1], [h2 | t2]) do
     # 1. LB -> If it's matched, remove it
     lb_tuples =
-      if new_lb.remaining_stake == 0 do
+      if new_lb.stake == 0 do
         t2
       else
         [h2 | t2]
@@ -288,7 +288,7 @@ defmodule BetUnfair.Controllers.Market do
 
     # 2. BB -> If it's matched, remove it
     bb_tuples =
-      if new_bb.remaining_stake == 0 do
+      if new_bb.stake == 0 do
         t1
       else
         [h1 | t1]
