@@ -36,4 +36,5 @@ defmodule BetUnfair.Repo.Migrations.CreateBetsTable do
     name: :relationships_matched_bet_id_bet_id_index
   )
   end
+
 end

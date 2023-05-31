@@ -175,7 +175,7 @@ defmodule BetUnfair do
     {:reply, result, state}
   end
 
-    ## BET
+  ## BET
 
   @impl true
   def handle_call({:bet_back, user, market, stake, odds}, _from, state) do
