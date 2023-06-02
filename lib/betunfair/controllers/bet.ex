@@ -24,57 +24,70 @@ defmodule BetUnfair.Controllers.Bet do
         # check if market exists
         case BetUnfair.Controllers.Market.market_get(market_id) do
           {:ok, market} ->
-            # check user balance, if enough, reduce it
-            {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_id)
+            # check if market is active
+            case market_is_active(market_id) do
+              {:ok, _} ->  
+                # check user balance, if enough, reduce it
+                {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_id)
 
-            if balance >= stake do
-              # substract money from user
-              new_balance = balance - stake
+                if balance >= stake do
+                  # substract money from user
+                  new_balance = balance - stake
 
-              changeset =
-                BetUnfair.Schemas.User.changeset(
-                  user_data,
-                  %{
-                    balance: new_balance
-                  }
-                )
-
-              case BetUnfair.Repo.update(changeset) do
-                {:ok, _} ->
-                  # create bet
-                  changeset1 =
-                    BetUnfair.Schemas.Bet.changeset(
-                      %BetUnfair.Schemas.Bet{},
+                  changeset =
+                    BetUnfair.Schemas.User.changeset(
+                      user_data,
                       %{
-                        username: user_data.username,
-                        market_name: market.market_name,
-                        stake: stake,
-                        remaining_stake: stake,
-                        odds: odds,
-                        bet_type: :back,
-                        matched_bets: nil
+                        balance: new_balance
                       }
                     )
 
-                  # insert into database
-                  case BetUnfair.Repo.insert(changeset1) do
-                    {:ok, bet} -> {:ok, bet.id}
-                    {:error, changeset1} -> {:error, changeset1}
+                  case BetUnfair.Repo.update(changeset) do
+                    {:ok, _} ->
+                      # create bet
+                      changeset1 =
+                        BetUnfair.Schemas.Bet.changeset(
+                          %BetUnfair.Schemas.Bet{},
+                          %{
+                            username: user_data.username,
+                            market_name: market.market_name,
+                            stake: stake,
+                            remaining_stake: stake,
+                            odds: odds,
+                            bet_type: :back,
+                            matched_bets: nil
+                          }
+                        )
+
+                      # insert into database
+                      case BetUnfair.Repo.insert(changeset1) do
+                        {:ok, bet} -> {:ok, bet.id}
+                        {:error, changeset1} -> {:error, changeset1}
+                      end
+
+                    {:error, changeset} ->
+                      {:error, changeset}
                   end
-
-                {:error, changeset} ->
-                  {:error, changeset}
-              end
-            else
-              {:error, "Insuficient funds"}
+                else
+                  {:error, "Insuficient funds"}
+                end
+              {:error, reason} ->
+                {:error, reason}
             end
-
           {:error, reason} ->
             {:error, reason}
         end
 
       {:error, reason} ->
         {:error, reason}
+    end
+  end
+
+  defp market_is_active(market_id) do
+    {_, %{status: s}} = BetUnfair.Controllers.Market.market_get(market_id)
+    case s do
+      :active -> {:ok, "Market is active"}
+      _ -> {:error, "Market is not active"}
     end
   end
 
@@ -99,53 +112,56 @@ defmodule BetUnfair.Controllers.Bet do
         # check if market exists
         case BetUnfair.Controllers.Market.market_get(market_id) do
           {:ok, market} ->
-            # check user balance, if enough, reduce it
-            {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_id)
+            # check if market is active
+            case market_is_active(market_id) do
+              {:ok, _} ->
+                # check user balance, if enough, reduce it
+                {_, balance} = BetUnfair.Controllers.User.user_get_balance(user_id)
 
-            if balance >= stake do
-              # can bet
+                if balance >= stake do
+                  # substract money from user
+                  new_balance = balance - stake
 
-              # substract money from user
-              new_balance = balance - stake
-
-              changeset =
-                BetUnfair.Schemas.User.changeset(
-                  user_data,
-                  %{
-                    balance: new_balance
-                  }
-                )
-
-              case BetUnfair.Repo.update(changeset) do
-                {:ok, _} ->
-                  # create bet
-                  changeset1 =
-                    BetUnfair.Schemas.Bet.changeset(
-                      %BetUnfair.Schemas.Bet{},
+                  changeset =
+                    BetUnfair.Schemas.User.changeset(
+                      user_data,
                       %{
-                        username: user_data.username,
-                        market_name: market.market_name,
-                        stake: stake,
-                        remaining_stake: stake,
-                        odds: odds,
-                        bet_type: :lay,
-                        matched_bets: nil
+                        balance: new_balance
                       }
                     )
 
-                  # insert into database
-                  case BetUnfair.Repo.insert(changeset1) do
-                    {:ok, bet} -> {:ok, bet.id}
-                    {:error, changeset1} -> {:error, changeset1}
+                  case BetUnfair.Repo.update(changeset) do
+                    {:ok, _} ->
+                      # create bet
+                      changeset1 =
+                        BetUnfair.Schemas.Bet.changeset(
+                          %BetUnfair.Schemas.Bet{},
+                          %{
+                            username: user_data.username,
+                            market_name: market.market_name,
+                            stake: stake,
+                            remaining_stake: stake,
+                            odds: odds,
+                            bet_type: :lay,
+                            matched_bets: nil
+                          }
+                        )
+
+                      # insert into database
+                      case BetUnfair.Repo.insert(changeset1) do
+                        {:ok, bet} -> {:ok, bet.id}
+                        {:error, changeset1} -> {:error, changeset1}
+                      end
+
+                    {:error, changeset} ->
+                      {:error, changeset}
                   end
-
-                {:error, changeset} ->
-                  {:error, changeset}
-              end
-            else
-              {:error, "Insuficient funds"}
+                else
+                  {:error, "Insuficient funds"}
+                end
+              {:error, reason} ->
+                {:error, reason}
             end
-
           {:error, reason} ->
             {:error, reason}
         end
