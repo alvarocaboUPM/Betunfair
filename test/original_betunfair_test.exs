@@ -26,7 +26,7 @@
 #     assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u1)
 #     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
 #     assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
-#     assert {:ok,%{bet_id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
+#     assert {:ok,%{id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
 #     assert {:ok,markets} = BetUnfair.market_list()
 #     assert 1 = length(markets)
 #     assert {:ok,markets} = BetUnfair.market_list_active()
@@ -41,7 +41,7 @@
 #     assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u1)
 #     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
 #     assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
-#     assert {:ok,%{bet_id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
+#     assert {:ok,%{id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
 
 
 #     assert {:ok,%{balance: 1000}} = BetUnfair.user_get(u1)
