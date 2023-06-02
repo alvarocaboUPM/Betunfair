@@ -64,7 +64,7 @@ defmodule BetUnfair.Controllers.User do
           case n_balance(amount, user_data.balance, operation) do
             {:ok, new_balance}-> changeset = BetUnfair.Schemas.User.changeset(user_data, %{balance: new_balance})
               case BetUnfair.Repo.update(changeset) do
-                {:ok, user} -> {:ok, user}
+                {:ok, user} -> :ok
                 {:error, changeset} -> {:error, changeset}
               end
             {:error, err}-> {:error, err}

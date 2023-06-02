@@ -101,7 +101,39 @@ defmodule BetUnfair.Controllers.Market do
 
   """
   @spec market_cancel(id :: market_id()) :: :ok | {:error, String.t()}
-  def market_cancel(id), do: market_set_status(id, :cancelled)
+  def market_cancel(id) do
+    case market_set_status(id, :cancelled) do
+      {:ok, _} ->
+        case market_bets(id) do
+          bets ->
+            Enum.each(bets, fn bet ->
+              # devolvemos stake al usuario
+              user_id = get_user_id_from_username(bet.username)
+              case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
+                :ok ->
+                  # cancelamos la bet
+                  case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
+                    :ok ->
+                      :ok
+                    {:error, reason} ->
+                      {:error, reason}
+                  end
+                {:error, reason} ->
+                  {:error, reason}
+              end
+            end)
+          {:error, reason} ->
+            {:error, reason} 
+        end
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp get_user_id_from_username(username) do
+    user_data = BetUnfair.Repo.get_by(BetUnfair.Schemas.User, username: username)
+    user_data.user_id
+  end
 
   @doc """
   Freezes the specified market.
@@ -112,7 +144,11 @@ defmodule BetUnfair.Controllers.Market do
 
   """
   @spec market_freeze(id :: market_id()) :: :ok | {:error, String.t()}
-  def market_freeze(id), do: market_set_status(id, :frozen)
+  def market_freeze(id) do
+    market_set_status(id, :frozen)
+    # get all pending backs and lays and return stakes
+
+  end
 
   @doc """
   Sets the result of the specified  id.
@@ -123,8 +159,9 @@ defmodule BetUnfair.Controllers.Market do
 
   """
   @spec market_settle(BetUnfair.Schemas.Market, boolean()) :: :ok | {:error, String.t()}
-  def market_settle(id, result) when is_boolean(result),
-    do: market_set_status(id, {:settled, result})
+  def market_settle(id, result) when is_boolean(result) do
+    market_set_status(id, {:settled, result})
+  end
 
   defp market_set_status(id, option) do
     case market_get(id) do
