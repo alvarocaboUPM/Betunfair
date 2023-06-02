@@ -145,9 +145,58 @@ defmodule BetUnfair.Controllers.Market do
   """
   @spec market_freeze(id :: market_id()) :: :ok | {:error, String.t()}
   def market_freeze(id) do
-    market_set_status(id, :frozen)
-    # get all pending backs and lays and return stakes
-
+    case market_set_status(id, :frozen) do
+      {:ok, _} ->
+        # get all pending backs and return stakes
+        case market_pending_backs(id) do
+          {_, lista} ->
+            IO.puts "EPEPEPEPE"
+            IO.inspect lista
+            Enum.each(lista, fn {_,elem} ->
+              {_,bet} = BetUnfair.Controllers.Bet.bet_get(elem)
+              # devolvemos stake al usuario
+              user_id = get_user_id_from_username(bet.username)
+              case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
+                :ok ->
+                  # cancelamos la bet
+                  case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
+                    :ok ->
+                      # get all pending lays and return stakes
+                      case market_pending_lays(id) do
+                        {_, lista} ->
+                          Enum.each(lista, fn {_,elem} ->
+                            {_,bet} = BetUnfair.Controllers.Bet.bet_get(elem)
+                            # devolvemos stake al usuario
+                            user_id = get_user_id_from_username(bet.username)
+                            case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
+                              :ok ->
+                                # cancelamos la bet
+                                case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
+                                  :ok ->
+                                    :ok
+                                  {:error, reason} ->
+                                    {:error, reason}
+                                end
+                              {:error, reason} ->
+                                {:error, reason}
+                            end
+                          end)
+                        {:error, reason} ->
+                          {:error, reason}
+                      end
+                    {:ppperror, reason} ->
+                      {:error, reason}
+                  end
+                {:error, reason} ->
+                  {:error, reason}
+              end
+            end)
+          {:error, reason} ->
+            {:error, reason}
+        end
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   @doc """
