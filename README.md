@@ -2,14 +2,42 @@
 
 BetUnfair is a marketplace where users can place bets against each other,rather than against a bookmaker
 
-## Dev Setup
+## Table of Contents
+
+- [BetUnfair](#betunfair)
+  - [Table of Contents](#table-of-contents)
+  - [Documentation](#documentation)
+  - [Development Setup](#development-setup)
+    - [Prerequesites](#prerequesites)
+    - [Database set-up and connection](#database-set-up-and-connection)
+    - [Database connection (Manual)](#database-connection-manual)
+  - [Useful documentation](#useful-documentation)
+
+## Documentation
+
+At `docs` folder you can checkout information about the database:
+
+- [Presentation]("docs/presentation.pdf")
+- [DB v.3]("docs/betunfair_v3.pdf")
+
+## Development Setup
+
+### Prerequesites
+
+If you are confortable with using docker, you can run a development
+enviroment with this requesites with our Docker Image, which contains:
+
+1. Elixir ^1.12
+2. OTP ^24
+3. MariaDB / MySQL server running
+4. MariaDB / MySQL client
 
 ### Database set-up and connection
 
-You can use the scrip `autobuildDB` to rebuild the databases on migration update
+You can use the scrip `autobuildDB` to rebuild the databases on migration update or creation
 
 ```bash
-    sudo ./utils/autobuildDB.sh
+sudo ./utils/autobuildDB.sh
 ```
 
 ### Database connection (Manual)
