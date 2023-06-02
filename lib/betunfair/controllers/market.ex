@@ -219,10 +219,10 @@ defmodule BetUnfair.Controllers.Market do
     {_, back_bets} = market_pending_backs(id)
     {_, lay_bets} = market_pending_lays(id)
 
-    IO.puts("Original back bets: ")
-    IO.inspect(back_bets)
-    IO.puts("Original lay bets: ")
-    IO.inspect(lay_bets)
+    # IO.puts("Original back bets: ")
+    # IO.inspect(back_bets)
+    # IO.puts("Original lay bets: ")
+    # IO.inspect(lay_bets)
     match_bets(back_bets, lay_bets)
   end
 
@@ -254,7 +254,7 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   defp calculate_matched_amount(back_bet, lay_bet) do
-    IO.puts("Matching: " <> back_bet.username <> " and " <> lay_bet.username)
+    # IO.puts("Matching: " <> back_bet.username <> " and " <> lay_bet.username)
     # Caso 1: Consume todo el back
     if(back_bet.stake * (back_bet.odds / 100) - back_bet.stake <= lay_bet.stake) do
       back_bet.stake
@@ -270,16 +270,16 @@ defmodule BetUnfair.Controllers.Market do
   defp calculate_matched_amount_aux(i, odds, lb_stake) do
     amount = i * (odds / 100) - i
 
-    if(amount <= lb_stake) do
-      i
+    if(amount < lb_stake) do
+      i+1
     else
-      # IO.puts(Float.to_string(amount) <> " > " <> Integer.to_string(lb_stake))
+      # IO.puts(Integer.to_string(i) <> "-> " <> Float.to_string(amount) <> " > " <> Integer.to_string(lb_stake))
       calculate_matched_amount_aux(i - 1, odds, lb_stake)
     end
   end
-  
+
   defp update_bet_stakes(matched_amount, back_bet, lay_bet) do
-    IO.puts("Matching amount -> " <> Integer.to_string(matched_amount))
+    # IO.puts("Matching amount -> " <> Integer.to_string(matched_amount))
 
     amount =
       cond do
@@ -311,22 +311,22 @@ defmodule BetUnfair.Controllers.Market do
     # 1. BB -> If it's matched, remove it
     bb_tuples =
       if new_bb.stake == 0 do
-        IO.inspect(t1)
+        # IO.inspect(t1)
         t1
       else
-        IO.puts("Keeping this bb: ")
-        IO.inspect(BetUnfair.Controllers.Bet.bet_get(elem(h1, 1)))
+        # IO.puts("Keeping this bb: ")
+        # IO.inspect(BetUnfair.Controllers.Bet.bet_get(elem(h1, 1)))
         [h1 | t1]
       end
 
     # 2. LB -> If it's matched, remove it
     lb_tuples =
       if new_lb.stake == 0 do
-        IO.inspect(t2)
+        # IO.inspect(t2)
         t2
       else
-        IO.puts("Keeping this lb: ")
-        IO.inspect(BetUnfair.Controllers.Bet.bet_get(elem(h2, 1)))
+        # IO.puts("Keeping this lb: ")
+        # IO.inspect(BetUnfair.Controllers.Bet.bet_get(elem(h2, 1)))
         [h2 | t2]
       end
 

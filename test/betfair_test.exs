@@ -26,11 +26,11 @@ defmodule BetUnfairBetFairTest do
     assert is_ok(BetUnfair.user_deposit(g,200000))
     # Original state
     assert {:ok,m1} = BetUnfair.market_create("me","Main Event")
-    assert {:ok,bba} = BetUnfair.bet_back(a,m1,2000,300)
-    assert {:ok,bbb} = BetUnfair.bet_back(b,m1,1400,200)
+    assert {:ok,_bba} = BetUnfair.bet_back(a,m1,2000,300)
+    assert {:ok,_bbb} = BetUnfair.bet_back(b,m1,1400,200)
     assert {:ok,bbc} = BetUnfair.bet_back(c,m1,500,153)
-    assert {:ok,bld} = BetUnfair.bet_lay(d,m1,2100,150)
-    assert {:ok,ble} = BetUnfair.bet_lay(e,m1,40000,110)
+    assert {:ok,_bld} = BetUnfair.bet_lay(d,m1,2100,150)
+    assert {:ok,_ble} = BetUnfair.bet_lay(e,m1,40000,110)
     # Case 1
     assert {:ok,bbf} = BetUnfair.bet_back(f,m1,5000,150)
     assert is_ok(BetUnfair.market_match(m1))
