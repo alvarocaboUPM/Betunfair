@@ -2,9 +2,9 @@ defmodule BetUnfairOriginalTest do
    use ExUnit.Case, async: true
 
   setup do
-    # Explicitly get a connection before each test
+
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(BetUnfair.Repo)
-    # Setting the shared mode must be done only after checkout
+
     Ecto.Adapters.SQL.Sandbox.mode(BetUnfair.Repo, {:shared, self()})
   end
 
@@ -26,7 +26,7 @@ defmodule BetUnfairOriginalTest do
     assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
     assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
-    assert {:ok,%{bet_id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
+    assert {:ok,%{id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
     assert {:ok,markets} = BetUnfair.market_list()
     assert 1 = length(markets)
     assert {:ok,markets} = BetUnfair.market_list_active()
@@ -41,7 +41,7 @@ defmodule BetUnfairOriginalTest do
     assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u1)
     assert {:ok,m1} = BetUnfair.market_create("rmw","Real Madrid wins")
     assert {:ok,b} = BetUnfair.bet_back(u1,m1,1000,150)
-    assert {:ok,%{bet_id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
+    assert {:ok,%{id: ^b, bet_type: :back, stake: 1000, odds: 150, status: :active}} = BetUnfair.bet_get(b)
 
 
     assert {:ok,%{balance: 1000}} = BetUnfair.user_get(u1)
@@ -119,8 +119,6 @@ defmodule BetUnfairOriginalTest do
   end
 
   test "match_bets4" do
-
-
     assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
     assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
     assert is_ok(BetUnfair.user_deposit(u1,2000))
@@ -138,11 +136,9 @@ defmodule BetUnfairOriginalTest do
     assert is_ok(BetUnfair.market_cancel(m1))
     assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u1)
     assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u2)
-  end
+   end
 
   test "match_bets5" do
-
-
     assert {:ok,u1} = BetUnfair.user_create("u1","Francisco Gonzalez")
     assert {:ok,u2} = BetUnfair.user_create("u2","Maria Fernandez")
     assert is_ok(BetUnfair.user_deposit(u1,2000))

@@ -1,4 +1,5 @@
 defmodule BetUnfair.Controllers.Market do
+  alias ExGram.Model.InputTextMessageContent
   import Ecto.Query
 
   @type market_id() :: String.t()
@@ -218,6 +219,10 @@ defmodule BetUnfair.Controllers.Market do
     {_, back_bets} = market_pending_backs(id)
     {_, lay_bets} = market_pending_lays(id)
 
+    # IO.puts("Original back bets: ")
+    # IO.inspect(back_bets)
+    # IO.puts("Original lay bets: ")
+    # IO.inspect(lay_bets)
     match_bets(back_bets, lay_bets)
   end
 
@@ -225,6 +230,7 @@ defmodule BetUnfair.Controllers.Market do
 
   defp match_bets([bb_tuple | t], lb_tuples) do
     bb_tuples = [bb_tuple | t]
+
     Enum.each(lb_tuples, fn lb_tuple ->
       # Find potential match: back_odds <= lay_odds
       if elem(bb_tuple, 0) <= elem(lb_tuple, 0) do
@@ -232,12 +238,14 @@ defmodule BetUnfair.Controllers.Market do
         {_, back_bet} = BetUnfair.Controllers.Bet.bet_get(elem(bb_tuple, 1))
         {_, lay_bet} = BetUnfair.Controllers.Bet.bet_get(elem(lb_tuple, 1))
         # Find matching amount
-          {b,l}= calculate_matched_amount(back_bet, lay_bet)
+        {b, l} =
+          calculate_matched_amount(back_bet, lay_bet)
           # Update the DB
           |> update_bet_stakes(back_bet, lay_bet)
           # Update the queues
           |> new_records(bb_tuples, lb_tuples)
-          match_bets(b,l)
+
+        match_bets(b, l)
       end
     end)
 
@@ -246,19 +254,41 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   defp calculate_matched_amount(back_bet, lay_bet) do
-    amount =
-      back_bet.stake *
-        (back_bet.odds / 100)-
-        back_bet.stake
+    # IO.puts("Matching: " <> back_bet.username <> " and " <> lay_bet.username)
+    # Caso 1: Consume todo el back
+    if(back_bet.stake * (back_bet.odds / 100) - back_bet.stake <= lay_bet.stake) do
+      back_bet.stake
+    else
+      calculate_matched_amount_aux(back_bet.stake, back_bet.odds, lay_bet.stake)
+    end
+  end
 
+  # Caso 3: Se consumen mutuamente
+  defp calculate_matched_amount_aux(1, _odds, lb_stake), do: lb_stake
 
-    case amount >= lay_bet.stake do
-      true -> lay_bet.stake
-      false -> back_bet.stake
+  # Caso 2: Consume todo el lay
+  defp calculate_matched_amount_aux(i, odds, lb_stake) do
+    amount = i * (odds / 100) - i
+
+    if(amount < lb_stake) do
+      i+1
+    else
+      # IO.puts(Integer.to_string(i) <> "-> " <> Float.to_string(amount) <> " > " <> Integer.to_string(lb_stake))
+      calculate_matched_amount_aux(i - 1, odds, lb_stake)
     end
   end
 
   defp update_bet_stakes(matched_amount, back_bet, lay_bet) do
+    # IO.puts("Matching amount -> " <> Integer.to_string(matched_amount))
+
+    amount =
+      cond do
+        back_bet.stake == matched_amount ->
+          round(back_bet.stake * (back_bet.odds / 100) - back_bet.stake)
+        true ->
+          matched_amount
+      end
+
     b_changeset =
       BetUnfair.Schemas.Bet.changeset(back_bet, %{
         stake: back_bet.stake - matched_amount,
@@ -267,7 +297,7 @@ defmodule BetUnfair.Controllers.Market do
 
     l_changeset =
       BetUnfair.Schemas.Bet.changeset(lay_bet, %{
-        stake: lay_bet.stake - matched_amount,
+        stake: max(lay_bet.stake - amount, 0),
         matched_bets: [lay_bet.matched_bets | back_bet]
       })
 
@@ -278,20 +308,26 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   defp new_records({new_bb, new_lb}, [h1 | t1], [h2 | t2]) do
-    # 1. LB -> If it's matched, remove it
-    lb_tuples =
-      if new_lb.stake == 0 do
-        t2
-      else
-        [h2 | t2]
-      end
-
-    # 2. BB -> If it's matched, remove it
+    # 1. BB -> If it's matched, remove it
     bb_tuples =
       if new_bb.stake == 0 do
+        # IO.inspect(t1)
         t1
       else
+        # IO.puts("Keeping this bb: ")
+        # IO.inspect(BetUnfair.Controllers.Bet.bet_get(elem(h1, 1)))
         [h1 | t1]
+      end
+
+    # 2. LB -> If it's matched, remove it
+    lb_tuples =
+      if new_lb.stake == 0 do
+        # IO.inspect(t2)
+        t2
+      else
+        # IO.puts("Keeping this lb: ")
+        # IO.inspect(BetUnfair.Controllers.Bet.bet_get(elem(h2, 1)))
+        [h2 | t2]
       end
 
     {bb_tuples, lb_tuples}
