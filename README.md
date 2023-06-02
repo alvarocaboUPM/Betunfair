@@ -25,7 +25,7 @@ At `docs` folder you can checkout information about the database:
 ### Prerequesites
 
 If you are confortable with using docker, you can run a development
-enviroment with this requesites with our Docker Image
+enviroment with this requesites with our Docker Image, which contains:
 
 1. Elixir ^1.12
 2. OTP ^24
