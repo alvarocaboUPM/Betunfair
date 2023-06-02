@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `bet`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `bet` (
-  `bet_id` binary(16) NOT NULL,
+  `id` binary(16) NOT NULL,
   `bet_type` varchar(255) DEFAULT NULL,
   `odds` int(11) DEFAULT NULL,
   `stake` int(11) DEFAULT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `bet` (
   `market_name` varchar(255) DEFAULT NULL,
   `inserted_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`bet_id`),
+  PRIMARY KEY (`id`),
   KEY `bet_username_fkey` (`username`),
   KEY `bet_market_name_fkey` (`market_name`),
   CONSTRAINT `bet_market_name_fkey` FOREIGN KEY (`market_name`) REFERENCES `market` (`market_name`),
@@ -45,10 +45,7 @@ CREATE TABLE `bet` (
 -- Dumping data for table `bet`
 --
 
-LOCK TABLES `bet` WRITE;
-/*!40000 ALTER TABLE `bet` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bet` ENABLE KEYS */;
-UNLOCK TABLES;
+
 
 --
 -- Table structure for table `market`
@@ -58,13 +55,15 @@ DROP TABLE IF EXISTS `market`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `market` (
-  `market_name` varchar(255) NOT NULL,
+  `market_id` binary(16) NOT NULL,
+  `market_name` varchar(255) DEFAULT NULL,
   `market_description` varchar(255) DEFAULT NULL,
   `market_date` datetime DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL,
   `inserted_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`market_name`)
+  PRIMARY KEY (`market_id`),
+  UNIQUE KEY `market_market_name_index` (`market_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -72,10 +71,7 @@ CREATE TABLE `market` (
 -- Dumping data for table `market`
 --
 
-LOCK TABLES `market` WRITE;
-/*!40000 ALTER TABLE `market` DISABLE KEYS */;
-/*!40000 ALTER TABLE `market` ENABLE KEYS */;
-UNLOCK TABLES;
+
 
 --
 -- Table structure for table `matched_bets`
@@ -92,10 +88,12 @@ CREATE TABLE `matched_bets` (
   `inserted_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `relationships_bet_id_matched_bet_id_index` (`bet_id`,`matched_bet_id`),
+  UNIQUE KEY `relationships_matched_bet_id_bet_id_index` (`matched_bet_id`,`bet_id`),
   KEY `matched_bets_bet_id_index` (`bet_id`),
   KEY `matched_bets_matched_bet_id_index` (`matched_bet_id`),
-  CONSTRAINT `matched_bets_bet_id_fkey` FOREIGN KEY (`bet_id`) REFERENCES `bet` (`bet_id`),
-  CONSTRAINT `matched_bets_matched_bet_id_fkey` FOREIGN KEY (`matched_bet_id`) REFERENCES `bet` (`bet_id`)
+  CONSTRAINT `matched_bets_bet_id_fkey` FOREIGN KEY (`bet_id`) REFERENCES `bet` (`id`),
+  CONSTRAINT `matched_bets_matched_bet_id_fkey` FOREIGN KEY (`matched_bet_id`) REFERENCES `bet` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -103,10 +101,7 @@ CREATE TABLE `matched_bets` (
 -- Dumping data for table `matched_bets`
 --
 
-LOCK TABLES `matched_bets` WRITE;
-/*!40000 ALTER TABLE `matched_bets` DISABLE KEYS */;
-/*!40000 ALTER TABLE `matched_bets` ENABLE KEYS */;
-UNLOCK TABLES;
+
 
 --
 -- Table structure for table `schema_migrations`
@@ -126,11 +121,6 @@ CREATE TABLE `schema_migrations` (
 -- Dumping data for table `schema_migrations`
 --
 
-LOCK TABLES `schema_migrations` WRITE;
-/*!40000 ALTER TABLE `schema_migrations` DISABLE KEYS */;
-INSERT INTO `schema_migrations` VALUES (20230526142149,'2023-05-29 12:41:05'),(20230526143928,'2023-05-29 12:41:05'),(20230527221749,'2023-05-29 12:41:05');
-/*!40000 ALTER TABLE `schema_migrations` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `user`
@@ -140,13 +130,15 @@ DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user` (
-  `username` varchar(255) NOT NULL,
+  `user_id` binary(16) NOT NULL,
+  `username` varchar(255) DEFAULT NULL,
   `full_name` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `balance` double DEFAULT NULL,
+  `balance` int(11) DEFAULT NULL,
   `inserted_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`username`)
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `user_username_index` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -154,10 +146,7 @@ CREATE TABLE `user` (
 -- Dumping data for table `user`
 --
 
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -168,4 +157,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-29 14:50:09
+-- Dump completed on 2023-06-02 17:34:27

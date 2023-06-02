@@ -1,9 +1,12 @@
 #!/bin/bash
 
-########################################
-############ RUN AS ROOT! #############
-# Careful, it will delete dev and test dbs!
-########################################
+#############################################
+#               RUN AS ROOT!!               #
+#                                           #
+# Careful, it will delete dev and test dbs! #
+#                                           #
+#############################################
+
 # Borrar betunfair y betunfair_test
 mix ecto.drop -r BetUnfair.Repo
 MIX_ENV=test mix ecto.drop -r BetUnfair.Repo 
