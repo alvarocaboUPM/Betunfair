@@ -93,6 +93,25 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   @doc """
+  Freezes the specified market.
+
+  ## Examples
+
+      :ok = BetUnfair.market_cancel(m1)
+
+  """
+  @spec market_freeze(id :: market_id()) :: :ok | {:error, String.t()}
+  def market_freeze(id) do
+    {_, back_bets} = market_pending_backs(id) |> Enum.to_list() |> Enum.map(fn (e) -> elem(e,1) end)
+    {_, lay_bets} = market_pending_lays(id) |> Enum.to_list() |> Enum.map(fn (e) -> elem(e,1) end)
+    Enum.concat(back_bets, lay_bets)
+    #Returns money to all the unmatched bets
+    |>return_money()
+    market_set_status(id, :frozen)
+  end
+
+
+  @doc """
   Cancels the specified market.
 
   ## Examples
@@ -102,101 +121,20 @@ defmodule BetUnfair.Controllers.Market do
   """
   @spec market_cancel(id :: market_id()) :: :ok | {:error, String.t()}
   def market_cancel(id) do
-    case market_set_status(id, :cancelled) do
-      {:ok, _} ->
-        case market_bets(id) do
-          bets ->
-            Enum.each(bets, fn bet ->
-              # devolvemos stake al usuario
-              user_id = get_user_id_from_username(bet.username)
-              case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
-                :ok ->
-                  # cancelamos la bet
-                  case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
-                    :ok ->
-                      :ok
-                    {:error, reason} ->
-                      {:error, reason}
-                  end
-                {:error, reason} ->
-                  {:error, reason}
-              end
-            end)
-          {:error, reason} ->
-            {:error, reason} 
-        end
-      {:error, reason} ->
-        {:error, reason}
-    end
+    #Returns money to all the beters
+    market_bets(id)
+    |>return_money()
+
+    market_set_status(id, :cancelled)
   end
 
-  defp get_user_id_from_username(username) do
-    user_data = BetUnfair.Repo.get_by(BetUnfair.Schemas.User, username: username)
-    user_data.user_id
-  end
+  defp return_money([]), do: :ok
 
-  @doc """
-  Freezes the specified market.
-
-  ## Examples
-
-      :ok = BetUnfair.market_freeze(m1)
-
-  """
-  @spec market_freeze(id :: market_id()) :: :ok | {:error, String.t()}
-  def market_freeze(id) do
-    case market_set_status(id, :frozen) do
-      {:ok, _} ->
-        # get all pending backs and return stakes
-        case market_pending_backs(id) do
-          {_, lista} ->
-            IO.puts "EPEPEPEPE"
-            IO.inspect lista
-            Enum.each(lista, fn {_,elem} ->
-              {_,bet} = BetUnfair.Controllers.Bet.bet_get(elem)
-              # devolvemos stake al usuario
-              user_id = get_user_id_from_username(bet.username)
-              case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
-                :ok ->
-                  # cancelamos la bet
-                  case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
-                    :ok ->
-                      # get all pending lays and return stakes
-                      case market_pending_lays(id) do
-                        {_, lista} ->
-                          Enum.each(lista, fn {_,elem} ->
-                            {_,bet} = BetUnfair.Controllers.Bet.bet_get(elem)
-                            # devolvemos stake al usuario
-                            user_id = get_user_id_from_username(bet.username)
-                            case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
-                              :ok ->
-                                # cancelamos la bet
-                                case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
-                                  :ok ->
-                                    :ok
-                                  {:error, reason} ->
-                                    {:error, reason}
-                                end
-                              {:error, reason} ->
-                                {:error, reason}
-                            end
-                          end)
-                        {:error, reason} ->
-                          {:error, reason}
-                      end
-                    {:ppperror, reason} ->
-                      {:error, reason}
-                  end
-                {:error, reason} ->
-                  {:error, reason}
-              end
-            end)
-          {:error, reason} ->
-            {:error, reason}
-        end
-      {:error, reason} ->
-        {:error, reason}
-    end
+  defp return_money([h| bets_list]) do
+    {_,u_id} = BetUnfair.Controllers.User.get_user_id_from_username(h.username)
+    BetUnfair.Controllers.User.user_deposit(u_id, h.remaining_stake)
+    IO.puts("Returned " <> Integer.to_string(h.remaining_stake) <> "€ to user: " <> h.username)
+    return_money(bets_list)
   end
 
   @doc """

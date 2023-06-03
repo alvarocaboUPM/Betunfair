@@ -131,7 +131,7 @@ defmodule BetUnfair.Controllers.User do
   """
   @spec user_bets(user_id()):: Enumerable.t(BetUnfair.Schemas.Bet)
   def user_bets(id) do
-    case user_bets(id) do
+    case user_get(id) do
       {:ok, user} ->
         from(b in BetUnfair.Schemas.Bet, where: b.username == ^user.username, select: b)
         |> BetUnfair.Repo.all()
@@ -149,5 +149,15 @@ defmodule BetUnfair.Controllers.User do
     _ ->
         {:error, "User not found"}
     end
+  end
+
+  def get_user_id_from_username(username) do
+    case BetUnfair.Repo.get_by(BetUnfair.Schemas.User, username: username) do
+      nil ->
+        {:error, "User not found"}
+
+      user_data ->
+        {:ok, user_data.user_id}
+      end
   end
 end
