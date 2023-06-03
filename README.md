@@ -16,8 +16,8 @@ BetUnfair is a marketplace where users can place bets against each other,rather 
 
 At `docs` folder you can checkout information about the database:
 
-- [Presentation]("https://github.com/alvarocaboUPM/Betunfair/blob/main/docs/presentation.pdf")
-- [DB v.3]("https://github.com/alvarocaboUPM/Betunfair/blob/main/docs/betunfair_v3.pdf")
+- [Presentation](https://github.com/alvarocaboUPM/Betunfair/blob/main/docs/presentation.pdf)
+- [DB v.3](https://github.com/alvarocaboUPM/Betunfair/blob/main/docs/betunfair_v3.pdf)
 
 ## Development Setup
 
