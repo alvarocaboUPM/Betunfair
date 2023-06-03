@@ -54,7 +54,7 @@ defmodule BetUnfair do
   end
 
   def user_bets(user) do
-    GenServer.call(__MODULE__, {:user_get, user})
+    GenServer.call(__MODULE__, {:user_bets, user})
   end
 
   def user_get_balance(user) do
