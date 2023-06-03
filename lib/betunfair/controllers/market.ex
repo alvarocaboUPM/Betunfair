@@ -1,5 +1,5 @@
 defmodule BetUnfair.Controllers.Market do
-  alias ExGram.Model.InputTextMessageContent
+
   import Ecto.Query
 
   @type market_id() :: String.t()
@@ -92,6 +92,7 @@ defmodule BetUnfair.Controllers.Market do
     {:ok, markets}
   end
 
+
   @doc """
   Cancels the specified market.
 
@@ -122,8 +123,6 @@ defmodule BetUnfair.Controllers.Market do
                   {:error, reason}
               end
             end)
-          {:error, reason} ->
-            {:error, reason} 
         end
       {:error, reason} ->
         {:error, reason}
@@ -136,11 +135,10 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   @doc """
-  Freezes the specified market.
 
-  ## Examples
+    Freezes a market
 
-      :ok = BetUnfair.market_freeze(m1)
+    :ok = BetUnfair.market_freeze(m1)
 
   """
   @spec market_freeze(id :: market_id()) :: :ok | {:error, String.t()}
@@ -150,8 +148,6 @@ defmodule BetUnfair.Controllers.Market do
         # get all pending backs and return stakes
         case market_pending_backs(id) do
           {_, lista} ->
-            IO.puts "EPEPEPEPE"
-            IO.inspect lista
             Enum.each(lista, fn {_,elem} ->
               {_,bet} = BetUnfair.Controllers.Bet.bet_get(elem)
               # devolvemos stake al usuario
@@ -181,8 +177,6 @@ defmodule BetUnfair.Controllers.Market do
                                 {:error, reason}
                             end
                           end)
-                        {:error, reason} ->
-                          {:error, reason}
                       end
                     {:ppperror, reason} ->
                       {:error, reason}
@@ -191,8 +185,6 @@ defmodule BetUnfair.Controllers.Market do
                   {:error, reason}
               end
             end)
-          {:error, reason} ->
-            {:error, reason}
         end
       {:error, reason} ->
         {:error, reason}
@@ -305,10 +297,6 @@ defmodule BetUnfair.Controllers.Market do
     {_, back_bets} = market_pending_backs(id)
     {_, lay_bets} = market_pending_lays(id)
 
-    # IO.puts("Original back bets: ")
-    # IO.inspect(back_bets)
-    # IO.puts("Original lay bets: ")
-    # IO.inspect(lay_bets)
     match_bets(back_bets, lay_bets)
   end
 
@@ -340,7 +328,6 @@ defmodule BetUnfair.Controllers.Market do
   end
 
   defp calculate_matched_amount(back_bet, lay_bet) do
-    # IO.puts("Matching: " <> back_bet.username <> " and " <> lay_bet.username)
     # Caso 1: Consume todo el back
     if(back_bet.stake * (back_bet.odds / 100) - back_bet.stake <= lay_bet.stake) do
       back_bet.stake
@@ -359,13 +346,12 @@ defmodule BetUnfair.Controllers.Market do
     if(amount < lb_stake) do
       i+1
     else
-      # IO.puts(Integer.to_string(i) <> "-> " <> Float.to_string(amount) <> " > " <> Integer.to_string(lb_stake))
       calculate_matched_amount_aux(i - 1, odds, lb_stake)
     end
   end
 
   defp update_bet_stakes(matched_amount, back_bet, lay_bet) do
-    # IO.puts("Matching amount -> " <> Integer.to_string(matched_amount))
+
 
     amount =
       cond do
@@ -397,22 +383,18 @@ defmodule BetUnfair.Controllers.Market do
     # 1. BB -> If it's matched, remove it
     bb_tuples =
       if new_bb.stake == 0 do
-        # IO.inspect(t1)
         t1
       else
-        # IO.puts("Keeping this bb: ")
-        # IO.inspect(BetUnfair.Controllers.Bet.bet_get(elem(h1, 1)))
         [h1 | t1]
       end
 
     # 2. LB -> If it's matched, remove it
     lb_tuples =
       if new_lb.stake == 0 do
-        # IO.inspect(t2)
+
         t2
       else
-        # IO.puts("Keeping this lb: ")
-        # IO.inspect(BetUnfair.Controllers.Bet.bet_get(elem(h2, 1)))
+
         [h2 | t2]
       end
 

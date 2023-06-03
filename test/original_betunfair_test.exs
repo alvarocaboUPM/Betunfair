@@ -115,6 +115,7 @@ defmodule BetUnfairOriginalTest do
     assert {:ok,%{stake: 800}} = BetUnfair.bet_get(bb1)
     assert {:ok,%{stake: 0}} = BetUnfair.bet_get(bl2)
     assert {:ok,user_bets} = BetUnfair.user_bets(u1)
+
     assert 2 = length(user_bets)
   end
 
@@ -132,7 +133,7 @@ defmodule BetUnfairOriginalTest do
     assert {:ok,_bl1} = BetUnfair.bet_lay(u2,m1,100,140)
     assert {:ok,_bl2} = BetUnfair.bet_lay(u2,m1,100,150)
     assert {:ok,%{balance: 1800}} = BetUnfair.user_get(u2)
-    assert is_ok(BetUnfair.market_match(m1))
+assert is_ok(BetUnfair.market_match(m1))
     assert is_ok(BetUnfair.market_cancel(m1))
     assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u1)
     assert {:ok,%{balance: 2000}} = BetUnfair.user_get(u2)

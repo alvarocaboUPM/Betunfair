@@ -4,7 +4,6 @@ defmodule BetUnfairBetFairTest do
   setup do
     # Explicitly get a connection before each test
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(BetUnfair.Repo)
-    # Setting the shared mode must be done only after checkout
     Ecto.Adapters.SQL.Sandbox.mode(BetUnfair.Repo, {:shared, self()})
   end
 
