@@ -10,15 +10,14 @@ BetUnfair is a marketplace where users can place bets against each other,rather 
   - [Development Setup](#development-setup)
     - [Prerequesites](#prerequesites)
     - [Database set-up and connection](#database-set-up-and-connection)
-    - [Database connection (Manual)](#database-connection-manual)
-  - [Useful documentation](#useful-documentation)
+  - [Useful links](#useful-links)
 
 ## Documentation
 
 At `docs` folder you can checkout information about the database:
 
-- [Presentation]("docs/presentation.pdf")
-- [DB v.3]("docs/betunfair_v3.pdf")
+- [Presentation]("https://github.com/alvarocaboUPM/Betunfair/blob/main/docs/presentation.pdf")
+- [DB v.3]("https://github.com/alvarocaboUPM/Betunfair/blob/main/docs/betunfair_v3.pdf")
 
 ## Development Setup
 
@@ -34,39 +33,31 @@ enviroment with this requesites with our Docker Image, which contains:
 
 ### Database set-up and connection
 
-You can use the scrip `autobuildDB` to rebuild the databases on migration update or creation
+You can use the scrip `autobuildDB` to rebuild the databases on migration update or creation.
+**Atention:** this script will erase the previous databases betunfair and betunfair_test
 
 ```bash
 sudo ./utils/autobuildDB.sh
 ```
 
-### Database connection (Manual)
+Or you can do it manually
 
-1. Create the databases by running `utils/init.sql`
+1. Create the databases by running `utils/init.sql` as root
 2. Run the migrations for the testing db
-  
-   ```bash
-    export MIX_ENV=test && \
-    mix ecto.create && \
-    mix ecto.migrate && \
-    export MIX_ENV=dev
+
+    ```bash
+    MIX_ENV=dev mix ecto.migrate -r BetUnfair.Repo
+    MIX_ENV=test mix ecto.migrate -r BetUnfair.Repo
     ```
 
-3. Run the migrations for prod db
-  
-   ```bash
-    mix ecto.create && \
-    mix ecto.migrate
-    ```
-
-4. You can test the connection by running:
+3. You can test the connection by running:
 
    ```bash
     iex> MyApp.Repo.start_link()
     {:ok, #PID<0.198.0>}
     ```
 
-## Useful documentation
+## Useful links
 
 - [Ecto start-up](https://hexdocs.pm/ecto/getting-started.html#adding-ecto-to-an-application)
 - [Ecto-SQL](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.html)
