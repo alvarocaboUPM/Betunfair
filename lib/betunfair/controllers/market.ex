@@ -144,7 +144,7 @@ defmodule BetUnfair.Controllers.Market do
         true ->  BetUnfair.Controllers.Bet.bet_get(elem(bet_tuple,1)) |> elem(1)
           _-> bet_tuple
       end
-      
+
     get_user_id_from_username(bet.username)
     |> BetUnfair.Controllers.User.user_deposit(bet.remaining_stake)
 
