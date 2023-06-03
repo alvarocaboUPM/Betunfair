@@ -103,30 +103,10 @@ defmodule BetUnfair.Controllers.Market do
   """
   @spec market_cancel(id :: market_id()) :: :ok | {:error, String.t()}
   def market_cancel(id) do
-    case market_set_status(id, :cancelled) do
-      {:ok, _} ->
-        case market_bets(id) do
-          bets ->
-            Enum.each(bets, fn bet ->
-              # devolvemos stake al usuario
-              user_id = get_user_id_from_username(bet.username)
-              case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
-                :ok ->
-                  # cancelamos la bet
-                  case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
-                    :ok ->
-                      :ok
-                    {:error, reason} ->
-                      {:error, reason}
-                  end
-                {:error, reason} ->
-                  {:error, reason}
-              end
-            end)
-        end
-      {:error, reason} ->
-        {:error, reason}
-    end
+    market_bets(id)
+    |>return_stake()
+
+    market_set_status(id, :cancelled)
   end
 
   defp get_user_id_from_username(username) do
@@ -143,52 +123,34 @@ defmodule BetUnfair.Controllers.Market do
   """
   @spec market_freeze(id :: market_id()) :: :ok | {:error, String.t()}
   def market_freeze(id) do
-    case market_set_status(id, :frozen) do
-      {:ok, _} ->
-        # get all pending backs and return stakes
-        case market_pending_backs(id) do
-          {_, lista} ->
-            Enum.each(lista, fn {_,elem} ->
-              {_,bet} = BetUnfair.Controllers.Bet.bet_get(elem)
-              # devolvemos stake al usuario
-              user_id = get_user_id_from_username(bet.username)
-              case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
-                :ok ->
-                  # cancelamos la bet
-                  case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
-                    :ok ->
-                      # get all pending lays and return stakes
-                      case market_pending_lays(id) do
-                        {_, lista} ->
-                          Enum.each(lista, fn {_,elem} ->
-                            {_,bet} = BetUnfair.Controllers.Bet.bet_get(elem)
-                            # devolvemos stake al usuario
-                            user_id = get_user_id_from_username(bet.username)
-                            case BetUnfair.Controllers.User.user_deposit(user_id, bet.stake) do
-                              :ok ->
-                                # cancelamos la bet
-                                case BetUnfair.Controllers.Bet.bet_cancel(bet.id) do
-                                  :ok ->
-                                    :ok
-                                  {:error, reason} ->
-                                    {:error, reason}
-                                end
-                              {:error, reason} ->
-                                {:error, reason}
-                            end
-                          end)
-                      end
-                    {:ppperror, reason} ->
-                      {:error, reason}
-                  end
-                {:error, reason} ->
-                  {:error, reason}
-              end
-            end)
-        end
-      {:error, reason} ->
-        {:error, reason}
-    end
+    #Get all pending backs and return stakes
+    market_pending_backs(id)
+    |>elem(1)
+    |>return_stake()
+
+    market_pending_lays(id)
+    |>elem(1)
+    |>return_stake()
+
+    market_set_status(id, :frozen)
+  end
+
+  defp return_stake([]), do: :ok
+
+  defp return_stake([bet_tuple|rest]) do
+
+    bet=
+      case is_tuple (bet_tuple) do
+        true ->  BetUnfair.Controllers.Bet.bet_get(elem(bet_tuple,1)) |> elem(1)
+          _-> bet_tuple
+      end
+      
+    get_user_id_from_username(bet.username)
+    |> BetUnfair.Controllers.User.user_deposit(bet.remaining_stake)
+
+    BetUnfair.Controllers.Bet.bet_cancel(bet.id)
+
+    return_stake(rest)
   end
 
   @doc """
@@ -233,6 +195,7 @@ defmodule BetUnfair.Controllers.Market do
       {:ok, market} ->
         from(b in BetUnfair.Schemas.Bet, where: b.market_name == ^market.market_name, select: b)
         |> BetUnfair.Repo.all()
+        |> Enum.to_list()
 
       {:error, err} ->
         {:error, err}
@@ -246,7 +209,7 @@ defmodule BetUnfair.Controllers.Market do
 
 
   """
-  @spec market_pending_backs(id :: market_id()) :: list() | {:error, String.t()}
+  @spec market_pending_backs(id :: market_id()) :: {:ok, list(tuple())} | {:error, String.t()}
   def market_pending_backs(id), do: market_pending_bets(id, :back, "desc")
 
   @doc """
@@ -255,7 +218,7 @@ defmodule BetUnfair.Controllers.Market do
   ## Examples
 
   """
-  @spec market_pending_lays(id :: market_id()) :: list() | {:error, String.t()}
+  @spec market_pending_lays(id :: market_id()) :: {:ok, list(tuple())} | {:error, String.t()}
   def market_pending_lays(id), do: market_pending_bets(id, :lay, "asc")
 
   defp market_pending_bets(id, option, order) do
